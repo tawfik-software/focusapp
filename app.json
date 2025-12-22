@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "focusapp",
+    "slug": "focusapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logofocusapp.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      [
+        "expo-dev-client",
+        {
+          "launchMode": "most-recent"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1",
+            "useFrameworks": "static",
+            "module_headers": true
+          }
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tawfikcodes.focusapp"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.tawfikcodes.focusapp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00aaa817-b432-484b-b01c-a46e66eba812"
+      }
+    },
+    "owner": "tawfikcodes"
+  }
+}
