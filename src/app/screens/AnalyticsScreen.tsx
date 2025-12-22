@@ -124,7 +124,7 @@ const AnalyticsScreen = () => {
 
   return (
     <ImageBackground
-      source={require("../assets/firstfocusfallback.png")}
+      source={require("../../../assets/firstfocusfallback.png")}
       className="flex-1"
       resizeMode="cover"
     >

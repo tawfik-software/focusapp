@@ -5,10 +5,12 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/types";
+import { checkEntitlement } from "../../services/revenueCat";
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -37,9 +39,30 @@ export default function HomeScreen({ navigation }: Props) {
     }
   };
 
+  const handleAnalyticsPress = async () => {
+    const isPremium = await checkEntitlement();
+    
+    if (!isPremium) {
+      Alert.alert(
+        "Premium Feature",
+        "Analytics are only available for premium subscribers. Upgrade to track your focus progress!",
+        [
+          { text: "Cancel", style: "cancel" },
+          { 
+            text: "Get Premium", 
+            onPress: () => navigation.navigate("Paywall")
+          }
+        ]
+      );
+      return;
+    }
+    
+    navigation.navigate("Analytics");
+  };
+
   return (
     <ImageBackground
-      source={require("../assets/firstfocusfallback.png")}
+      source={require("../../../assets/firstfocusfallback.png")}
       className="flex-1"
       resizeMode="cover"
     >
@@ -58,7 +81,7 @@ export default function HomeScreen({ navigation }: Props) {
             activeOpacity={0.7}
           >
             <Image
-              source={require("../assets/buttonsfocus.png")}
+              source={require("../../../assets/buttonsfocus.png")}
               className="w-[140px] h-[140px]"
             />
           </TouchableOpacity>

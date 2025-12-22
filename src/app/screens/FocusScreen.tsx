@@ -16,6 +16,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList, FocusSession } from "../../types/types";
 import { AudioPlayer, useAudioPlayer } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { checkEntitlement } from "../../services/revenueCat";
 
 // Define navigation prop type
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -35,80 +36,82 @@ const FocusScreen = () => {
   const [userName, setUserName] = useState("");
   const [musicModalVisible, setMusicModalVisible] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState("music1");
+  const [hasFreeTrial, setHasFreeTrial] = useState(true);
+  const [hasPremium, setHasPremium] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const player = useAudioPlayer(require("../assets/music/music1.mp3"));
+  const player = useAudioPlayer(require("../../../assets/music/music1.mp3"));
 
   // Music library
   const musicLibrary = [
     {
       id: "music1",
       name: "music1",
-      source: require("../assets/music/music1.mp3"),
+      source: require("../../../assets/music/music1.mp3"),
     },
     {
       id: "music2",
       name: "music2",
-      source: require("../assets/music/music2.mp3"),
+      source: require("../../../assets/music/music2.mp3"),
     },
     {
       id: "music3",
       name: "music3",
-      source: require("../assets/music/music3.mp3"),
+      source: require("../../../assets/music/music3.mp3"),
     },
     {
       id: "music4",
       name: "music4",
-      source: require("../assets/music/music4.mp3"),
+      source: require("../../../assets/music/music4.mp3"),
     },
     {
       id: "music5",
       name: "music5",
-      source: require("../assets/music/music5.mp3"),
+      source: require("../../../assets/music/music5.mp3"),
     },
     {
       id: "music6",
       name: "music6",
-      source: require("../assets/music/music6.mp3"),
+      source: require("../../../assets/music/music6.mp3"),
     },
     {
       id: "music7",
       name: "music7",
-      source: require("../assets/music/music7.mp3"),
+      source: require("../../../assets/music/music7.mp3"),
     },
     {
       id: "music8",
       name: "music8",
-      source: require("../assets/music/music8.mp3"),
+      source: require("../../../assets/music/music8.mp3"),
     },
     {
       id: "music9",
       name: "music9",
-      source: require("../assets/music/music9.mp3"),
+      source: require("../../../assets/music/music9.mp3"),
     },
     {
       id: "music10",
       name: "music10",
-      source: require("../assets/music/music10.mp3"),
+      source: require("../../../assets/music/music10.mp3"),
     },
     {
       id: "music11",
       name: "music11",
-      source: require("../assets/music/music11.mp3"),
+      source: require("../../../assets/music/music11.mp3"),
     },
     {
       id: "music12",
       name: "music12",
-      source: require("../assets/music/music12.mp3"),
+      source: require("../../../assets/music/music12.mp3"),
     },
     {
       id: "music13",
       name: "music13",
-      source: require("../assets/music/music13.mp3"),
+      source: require("../../../assets/music/music13.mp3"),
     },
     {
       id: "music14",
       name: "music14",
-      source: require("../assets/music/music14.mp3"),
+      source: require("../../../assets/music/music14.mp3"),
     },
   ];
 
@@ -116,6 +119,7 @@ const FocusScreen = () => {
   useEffect(() => {
     loadPermissionStatus();
     loadUserName();
+    checkSubscriptionStatus();
   }, []);
 
   // Cleanup on unmount
@@ -157,6 +161,19 @@ const FocusScreen = () => {
       }
     } catch (error) {
       console.log("Error loading name:", error);
+    }
+  };
+
+  // Check subscription status
+  const checkSubscriptionStatus = async () => {
+    try {
+      const freeTrialStatus = await AsyncStorage.getItem("hasFreeTrial");
+      const isPremium = await checkEntitlement();
+      
+      setHasFreeTrial(freeTrialStatus === "true");
+      setHasPremium(isPremium);
+    } catch (error) {
+      console.log("Error checking subscription:", error);
     }
   };
 
@@ -206,17 +223,50 @@ const FocusScreen = () => {
 
   // Toggle volume control visibility
   const toggleVolumeControl = () => {
+    if (!hasPremium) {
+      Alert.alert(
+        "Premium Feature",
+        "Volume control is only available for premium subscribers.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { 
+            text: "Get Premium", 
+            onPress: () => navigation.navigate("Paywall")
+          }
+        ]
+      );
+      return;
+    }
     setShowVolumeControl(!showVolumeControl);
   };
 
   // Update volume
   const updateVolume = async (newVolume: number) => {
+    if (!hasPremium) {
+      return;
+    }
     setVolume(newVolume);
     player.volume = newVolume;
   };
 
   // Handle music selection
   const handleMusicSelection = async (musicId: string) => {
+    // Only allow music1 for free trial users
+    if (!hasPremium && musicId !== "music1") {
+      Alert.alert(
+        "Premium Feature",
+        "Premium music tracks are only available for subscribers. Upgrade to access all 14 ambient tracks!",
+        [
+          { text: "Cancel", style: "cancel" },
+          { 
+            text: "Get Premium", 
+            onPress: () => navigation.navigate("Paywall")
+          }
+        ]
+      );
+      return;
+    }
+
     if (isRunning) {
       Alert.alert(
         "Session en cours",
@@ -347,7 +397,7 @@ const FocusScreen = () => {
 
   return (
     <ImageBackground
-      source={require("../assets/focusfallback.png")}
+      source={require("../../../assets/focusfallback.png")}
       className="flex-1"
       resizeMode="cover"
     >
@@ -366,7 +416,23 @@ const FocusScreen = () => {
               />
             </TouchableOpacity>
             {/* Analytics Button */}
-            <TouchableOpacity onPress={() => navigation.navigate("Analytics")}>
+            <TouchableOpacity onPress={async () => {
+              if (!hasPremium) {
+                Alert.alert(
+                  "Premium Feature",
+                  "Analytics are only available for premium subscribers. Upgrade to track your focus progress!",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { 
+                      text: "Get Premium", 
+                      onPress: () => navigation.navigate("Paywall")
+                    }
+                  ]
+                );
+                return;
+              }
+              navigation.navigate("Analytics");
+            }}>
               <AntDesign name="bar-chart" size={30} color="#6a5f53" />
             </TouchableOpacity>
             {/* Volume Control */}
