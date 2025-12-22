@@ -10,7 +10,7 @@ import {
 import { AntDesign } from "@react-native-vector-icons/ant-design";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList, FocusSession, DailyStats } from "../../types";
+import { RootStackParamList, FocusSession, DailyStats } from "../../types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;

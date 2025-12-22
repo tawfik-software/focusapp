@@ -7,15 +7,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import WelcomeScreen from './app/screens/WelcomeScreen';
-import WhoAmIScreen from './app/screens/WhoAmIScreen';
-import PaywallScreen from './app/screens/PaywallScreen';
-import ReadyScreen from './app/screens/ReadyScreen';
-import HomeScreen from './app/screens/HomeScreen';
-import FocusScreen from './app/screens/FocusScreen';
-import AnalyticsScreen from './app/screens/AnalyticsScreen';
-import { RootStackParamList } from './types';
-import { configureRevenueCat } from './services/revenueCat';
+import WelcomeScreen from './src/app/screens/WelcomeScreen';
+import WhoAmIScreen from './src/app/screens/WhoAmIScreen';
+import PaywallScreen from './src/app/screens/PaywallScreen';
+import ReadyScreen from './src/app/screens/ReadyScreen';
+import HomeScreen from './src/app/screens/HomeScreen';
+import FocusScreen from './src/app/screens/FocusScreen';
+import AnalyticsScreen from './src/app/screens/AnalyticsScreen';
+import { RootStackParamList } from './src/types/types';
+import { configureRevenueCat } from './src/services/revenueCat';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

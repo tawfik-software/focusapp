@@ -13,7 +13,7 @@ import { AntDesign } from "@react-native-vector-icons/ant-design";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList, FocusSession } from "../../types";
+import { RootStackParamList, FocusSession } from "../../types/types";
 import { AudioPlayer, useAudioPlayer } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

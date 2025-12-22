@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../types";
+import { RootStackParamList } from "../../types/types";
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,

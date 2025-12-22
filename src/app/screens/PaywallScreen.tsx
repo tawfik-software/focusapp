@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types';
+import { RootStackParamList } from '../../types/types';
 import { presentPaywall } from '../../services/paywall';
 import { checkEntitlement } from '../../services/revenueCat';
 import { Ionicons } from '@expo/vector-icons';
