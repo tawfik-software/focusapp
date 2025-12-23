@@ -37,7 +37,7 @@ export default function ReadyScreen({ navigation }: ReadyScreenProps) {
 
   return (
     <ImageBackground
-      source={require('../assets/background.png')}
+      source={require('../../../assets/background.png')}
       className="flex-1"
       resizeMode="cover"
     >
@@ -56,7 +56,7 @@ export default function ReadyScreen({ navigation }: ReadyScreenProps) {
           onPress={handleStart}
         >
           <Image 
-            source={require('../assets/logofocusapp.png')} 
+            source={require('../../../assets/logofocusapp.png')} 
             className="w-8 h-8"
           />
           <Text className="text-white text-lg font-bold">Let's Focus!</Text>

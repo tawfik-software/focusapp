@@ -10,7 +10,7 @@ type WelcomeScreenProps = {
 export default function WelcomeScreen({ navigation }: WelcomeScreenProps) {
   return (
     <ImageBackground
-      source={require('../assets/background.png')}
+      source={require('../../../assets/background.png')}
       className="flex-1"
       resizeMode="cover"
     >

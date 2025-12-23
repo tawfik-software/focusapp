@@ -6,6 +6,7 @@ import { presentPaywall } from '../../services/paywall';
 import { checkEntitlement } from '../../services/revenueCat';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 type PaywallScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
@@ -62,6 +63,9 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
             <Text className="text-[#6a5f53] text-lg text-center leading-6 px-4">
               Transform your productivity with focused sessions, ambient music, and detailed analytics to track your progress.
             </Text>
+            <TouchableOpacity className="absolute top-15 right-2" onPress={() => navigation.goBack()}>
+              <AntDesign name="close-circle" size={24} color="#91908b" />
+            </TouchableOpacity>
           </View>
 
           {/* Pricing Cards */}
@@ -99,12 +103,12 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <Text className={`text-3xl font-bold ${
                 selectedPlan === 'yearly' ? 'text-white' : 'text-[#91908b]'
               }`}>
-                $29.99/year
+                $49.99/year
               </Text>
               <Text className={`text-sm mt-1 ${
                 selectedPlan === 'yearly' ? 'text-white/80' : 'text-[#6a5f53]'
               }`}>
-                Just $2.50/month
+                Just $4.17/month
               </Text>
             </TouchableOpacity>
 
@@ -136,7 +140,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <Text className={`text-3xl font-bold ${
                 selectedPlan === 'monthly' ? 'text-white' : 'text-[#91908b]'
               }`}>
-                $4.99/month
+                $6.99/month
               </Text>
               <Text className={`text-sm mt-1 ${
                 selectedPlan === 'monthly' ? 'text-white/80' : 'text-[#6a5f53]'
