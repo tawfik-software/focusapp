@@ -32,7 +32,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tawfikcodes.focusapp"
+      "bundleIdentifier": "com.tawfikcodes.focusapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {

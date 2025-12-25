@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
+import Slider from "@react-native-community/slider";
 import React, { useState, useRef, useEffect } from "react";
 import { AntDesign } from "@react-native-vector-icons/ant-design";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -222,6 +223,7 @@ const FocusScreen = () => {
       [{ text: "OK" }]
     );
   };
+
 
   // Toggle volume control visibility
   const toggleVolumeControl = () => {
@@ -447,6 +449,26 @@ const FocusScreen = () => {
           </View>
         </View>
 
+        {/* Volume Control Slider */}
+        {showVolumeControl && (
+          <View className="mx-5 mt-4 bg-white/90 rounded-xl p-4">
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-[#6a5f53] font-semibold">Volume</Text>
+              <Text className="text-[#91908b] font-bold">{Math.round(volume * 100)}%</Text>
+            </View>
+            <Slider
+              style={{ width: '100%', height: 40 }}
+              minimumValue={0}
+              maximumValue={1}
+              value={volume}
+              onValueChange={updateVolume}
+              minimumTrackTintColor="#91908b"
+              maximumTrackTintColor="#e8ddd0"
+              thumbTintColor="#6a5f53"
+            />
+          </View>
+        )}
+
         {/* CONTENT */}
         <View className="flex-1 justify-center items-center px-6">
           {isRunning ? (
@@ -482,6 +504,63 @@ const FocusScreen = () => {
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Modal de permission Screen Time */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={permissionModalVisible}
+          onRequestClose={() => setPermissionModalVisible(false)} >
+          <View className="flex-1 justify-center items-center bg-black/50">
+            <View className="bg-white rounded-2xl p-8 mx-5 items-center w-80">
+              <Text className="text-3xl mb-4">⏱️</Text>
+              <Text className="text-2xl font-bold text-[#91908b] mb-4 text-center">
+                Accès au suivi du temps </Text>
+              <Text className="text-[#6a5f53] mb-6 text-center">
+                Pour suivre votre temps de concentration, nous avons besoin d'accéder au suivi
+                du temps sur votre appareil. </Text>
+              <View className="w-full gap-3">
+                <TouchableOpacity className="bg-[#91908b] px-8 py-3 rounded-lg w-full"
+                  onPress={handlePermissionGranted} >
+                  <Text className="text-white text-center font-bold text-lg">
+                    Autoriser
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity className="bg-[#e8ddd0] px-8 py-3 rounded-lg w-full"
+                  onPress={handlePermissionDenied} >
+                  <Text className="text-[#6a5f53] text-center font-bold text-lg">
+                    Refuser </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+        
+        {/* Modal de fin de session */}
+        <Modal animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)} >
+          {/* Modal content */}
+          <View className="flex-1 justify-center items-center bg-black/50">
+            <View className="bg-white rounded-2xl p-8 mx-5 items-center w-80">
+              <Text className="text-2xl font-bold text-[#6a5f53] mb-4">
+                Excellent work! 🎉 </Text>
+              <Text className="text-gray-600 mb-2">
+                Focus time:
+              </Text>
+              <Text className="text-5xl font-bold text-[#6a5f53] mb-6">
+                {formatTime(focusTime)}
+              </Text>
+              <TouchableOpacity className="bg-[#91908b] px-8 py-3 rounded-lg w-full"
+                onPress={() => setModalVisible(false)} >
+                {/* Close button */}
+                <Text className="text-white text-center font-bold text-lg">
+                  close </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {/* Modal de sélection de musique */}
         <Modal

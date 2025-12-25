@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 
-const IOS_API_KEY = 'test_LusyeczVoCZIvyxDVgfmjlFbjeS';
-const ANDROID_API_KEY = 'test_LusyeczVoCZIvyxDVgfmjlFbjeS';
+const IOS_API_KEY = 'appl_JBFPYikrbpbLOfRGsrwRfIEobly';
+const ANDROID_API_KEY = 'appl_JBFPYikrbpbLOfRGsrwRfIEobly';
 
 export const configureRevenueCat = () => {
   Purchases.setLogLevel(LOG_LEVEL.VERBOSE);

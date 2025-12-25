@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/types';
-import { presentPaywall } from '../../services/paywall';
 import { checkEntitlement } from '../../services/revenueCat';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Purchases, { PurchasesPackage } from 'react-native-purchases';
 
 type PaywallScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
@@ -15,10 +15,23 @@ type PaywallScreenProps = {
 export default function PaywallScreen({ navigation }: PaywallScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
+  const [packages, setPackages] = useState<PurchasesPackage[]>([]);
 
   useEffect(() => {
     checkIfAlreadyPro();
+    loadPackages();
   }, []);
+
+  const loadPackages = async () => {
+    try {
+      const offerings = await Purchases.getOfferings();
+      if (offerings.current !== null && offerings.current.availablePackages.length > 0) {
+        setPackages(offerings.current.availablePackages);
+      }
+    } catch (e) {
+      console.error('Error loading packages:', e);
+    }
+  };
 
   const checkIfAlreadyPro = async () => {
     const hasPro = await checkEntitlement();
@@ -29,12 +42,36 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
 
   const handleSubscribe = async () => {
     setIsLoading(true);
-    const success = await presentPaywall();
-    setIsLoading(false);
+    
+    try {
+      // Trouver le package correspondant au plan sélectionné
+      const packageToPurchase = packages.find(pkg => 
+        selectedPlan === 'monthly' 
+          ? pkg.packageType === 'MONTHLY'
+          : pkg.packageType === 'ANNUAL'
+      );
 
-    if (success) {
-      await AsyncStorage.setItem('hasFreeTrial', 'false');
-      navigation.replace('Ready');
+      if (!packageToPurchase) {
+        Alert.alert('Error', 'Package not found. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Effectuer l'achat directement
+      const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
+
+      // Vérifier si l'utilisateur a maintenant l'accès pro
+      if (typeof customerInfo.entitlements.active['focusapp Pro'] !== 'undefined') {
+        await AsyncStorage.setItem('hasFreeTrial', 'false');
+        navigation.replace('Ready');
+      }
+    } catch (e: any) {
+      if (!e.userCancelled) {
+        Alert.alert('Error', 'Purchase failed. Please try again.');
+        console.error('Purchase error:', e);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,12 +140,12 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <Text className={`text-3xl font-bold ${
                 selectedPlan === 'yearly' ? 'text-white' : 'text-[#91908b]'
               }`}>
-                $49.99/year
+                $79.99/year
               </Text>
               <Text className={`text-sm mt-1 ${
                 selectedPlan === 'yearly' ? 'text-white/80' : 'text-[#6a5f53]'
               }`}>
-                Just $4.17/month
+                Just $6.67/month
               </Text>
             </TouchableOpacity>
 
@@ -140,7 +177,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <Text className={`text-3xl font-bold ${
                 selectedPlan === 'monthly' ? 'text-white' : 'text-[#91908b]'
               }`}>
-                $6.99/month
+                $9.99/month
               </Text>
               <Text className={`text-sm mt-1 ${
                 selectedPlan === 'monthly' ? 'text-white/80' : 'text-[#6a5f53]'
