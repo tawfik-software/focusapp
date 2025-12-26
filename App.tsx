@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import './src/services/i18n';
 
 import WelcomeScreen from './src/app/screens/WelcomeScreen';
 import WhoAmIScreen from './src/app/screens/WhoAmIScreen';
@@ -14,6 +15,7 @@ import ReadyScreen from './src/app/screens/ReadyScreen';
 import HomeScreen from './src/app/screens/HomeScreen';
 import FocusScreen from './src/app/screens/FocusScreen';
 import AnalyticsScreen from './src/app/screens/AnalyticsScreen';
+import ProfileScreen from './src/app/screens/ProfileScreen';
 import { RootStackParamList } from './src/types/types';
 import { configureRevenueCat } from './src/services/revenueCat';
 
@@ -64,6 +66,7 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Focus" component={FocusScreen} />
           <Stack.Screen name="Analytics" component={AnalyticsScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

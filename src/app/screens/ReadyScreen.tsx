@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, ImageBackground } from 'react-nati
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 type ReadyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Ready'>;
@@ -10,6 +11,7 @@ type ReadyScreenProps = {
 
 export default function ReadyScreen({ navigation }: ReadyScreenProps) {
   const [userName, setUserName] = useState('');
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadUserName();
@@ -43,11 +45,11 @@ export default function ReadyScreen({ navigation }: ReadyScreenProps) {
     >
       <View className="flex-1 items-center justify-center px-5">
         <Text className="text-[#91908b] text-3xl font-bold mb-5 text-center">
-          Are you ready to do this with me?
+          {t('ready.title')}
         </Text>
         {userName && (
           <Text className="text-[#6a5f53] text-xl mb-12">
-            hello {userName}! 👋
+            {t('ready.hello', { name: userName })}
           </Text>
         )}
         
@@ -59,7 +61,7 @@ export default function ReadyScreen({ navigation }: ReadyScreenProps) {
             source={require('../../../assets/logofocusapp.png')} 
             className="w-8 h-8"
           />
-          <Text className="text-white text-lg font-bold">Let's Focus!</Text>
+          <Text className="text-white text-lg font-bold">{t('ready.startButton')}</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>

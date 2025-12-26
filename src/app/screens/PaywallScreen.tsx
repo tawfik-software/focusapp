@@ -3,10 +3,11 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackg
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/types';
 import { checkEntitlement } from '../../services/revenueCat';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Purchases, { PurchasesPackage } from 'react-native-purchases';
+import { useTranslation } from 'react-i18next';
 
 type PaywallScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
@@ -16,6 +17,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     checkIfAlreadyPro();
@@ -52,7 +54,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
       );
 
       if (!packageToPurchase) {
-        Alert.alert('Error', 'Package not found. Please try again.');
+        Alert.alert(t('paywall.error'), t('paywall.packageError'));
         setIsLoading(false);
         return;
       }
@@ -67,7 +69,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
       }
     } catch (e: any) {
       if (!e.userCancelled) {
-        Alert.alert('Error', 'Purchase failed. Please try again.');
+        Alert.alert(t('paywall.error'), t('paywall.purchaseError'));
         console.error('Purchase error:', e);
       }
     } finally {
@@ -95,10 +97,10 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <Ionicons name="flash" size={48} color="#91908b" />
             </View>
             <Text className="text-[#91908b] text-4xl font-bold text-center mb-4">
-              Focus App
+              {t('paywall.title')}
             </Text>
             <Text className="text-[#6a5f53] text-lg text-center leading-6 px-4">
-              Transform your productivity with focused sessions, ambient music, and detailed analytics to track your progress.
+              {t('paywall.subtitle')}
             </Text>
             <TouchableOpacity className="absolute top-15 right-2" onPress={() => navigation.goBack()}>
               <AntDesign name="close-circle" size={24} color="#91908b" />
@@ -121,10 +123,10 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
                   <Text className={`text-2xl font-bold ${
                     selectedPlan === 'yearly' ? 'text-white' : 'text-[#91908b]'
                   }`}>
-                    Yearly
+                    {t('paywall.yearlyPlan')}
                   </Text>
                   <View className="bg-[#6a5f53] px-3 py-1 rounded-full ml-3">
-                    <Text className="text-white text-xs font-bold">SAVE 50%</Text>
+                    <Text className="text-white text-xs font-bold">{t('paywall.savePercent', { percent: '50' })}</Text>
                   </View>
                 </View>
                 <View className={`w-6 h-6 rounded-full border-2 ${
@@ -162,7 +164,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
                 <Text className={`text-2xl font-bold ${
                   selectedPlan === 'monthly' ? 'text-white' : 'text-[#91908b]'
                 }`}>
-                  Monthly
+                  {t('paywall.monthlyPlan')}
                 </Text>
                 <View className={`w-6 h-6 rounded-full border-2 ${
                   selectedPlan === 'monthly' 
@@ -189,10 +191,10 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
 
           {/* Features */}
           <View className="bg-[#e8ddd0]/50 rounded-2xl p-5 mb-6">
-            <FeatureItem icon="checkmark-circle" text="Unlimited focus sessions" />
-            <FeatureItem icon="checkmark-circle" text="14 premium ambient music tracks" />
-            <FeatureItem icon="checkmark-circle" text="Detailed analytics & insights" />
-            <FeatureItem icon="checkmark-circle" text="Volume control & customization" />
+            <FeatureItem icon="checkmark-circle" text={t('paywall.feature1')} />
+            <FeatureItem icon="checkmark-circle" text={t('paywall.feature2')} />
+            <FeatureItem icon="checkmark-circle" text={t('paywall.feature3')} />
+            <FeatureItem icon="checkmark-circle" text={t('paywall.feature4')} />
           </View>
 
           {/* CTA Buttons */}
@@ -207,7 +209,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
                 <ActivityIndicator color="#FFF" />
               ) : (
                 <Text className="text-white text-xl font-bold text-center">
-                  Start {selectedPlan === 'yearly' ? 'Yearly' : 'Monthly'} Plan
+                  {t('paywall.subscribe')} - {selectedPlan === 'yearly' ? t('paywall.yearlyPlan') : t('paywall.monthlyPlan')}
                 </Text>
               )}
             </TouchableOpacity>
@@ -219,13 +221,13 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               className="py-4"
             >
               <Text className="text-[#6a5f53] text-base text-center font-semibold">
-                Maybe later (Limited Access)
+                {t('paywall.maybeLater')}
               </Text>
             </TouchableOpacity>
 
             {/* Footer */}
             <Text className="text-[#b5a99a] text-xs text-center mt-2">
-              Cancel anytime. Terms apply.
+              {t('paywall.termsAndPrivacy')}
             </Text>
           </View>
         </View>

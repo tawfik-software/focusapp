@@ -11,6 +11,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/types";
 import { checkEntitlement } from "../../services/revenueCat";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useTranslation } from 'react-i18next';
 
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
@@ -24,6 +26,7 @@ type Props = {
 
 export default function HomeScreen({ navigation }: Props) {
   const [userName, setUserName] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadUserName();
@@ -45,12 +48,12 @@ export default function HomeScreen({ navigation }: Props) {
     
     if (!isPremium) {
       Alert.alert(
-        "Premium Feature",
-        "Analytics are only available for premium subscribers. Upgrade to track your focus progress!",
+        t('home.premiumFeature'),
+        t('home.analyticsMessage'),
         [
-          { text: "Cancel", style: "cancel" },
+          { text: t('home.cancel'), style: "cancel" },
           { 
-            text: "Get Premium", 
+            text: t('home.getPremium'), 
             onPress: () => navigation.navigate("Paywall")
           }
         ]
@@ -67,26 +70,35 @@ export default function HomeScreen({ navigation }: Props) {
       className="flex-1"
       resizeMode="cover"
     >
-      {/* hider */}
-      <View className="flex-1 p-5">
-        <Text className="text-xl text-[#91908b] mt-12 mb-2">
-          Welcome {userName}!
-        </Text>
-        <Text className="text-4xl font-bold text-black mb-1">Focus App</Text>
-        <Text className="text-lg text-[#a0a0a0] mb-10">🎵 Focus Timer</Text>
-
-        {/* Button */}
-        <View className="flex-1 items-center justify-end pb-20">
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Focus")}
-            activeOpacity={0.7}
-          >
-            <Image
-              source={require("../../../assets/buttonsfocus.png")}
-              className="w-[140px] h-[140px]"
-            />
-          </TouchableOpacity>
+      {/* Header with Profile Button */}
+      <View className="flex-row justify-between items-center px-5 pt-12">
+        <View>
+          <Text className="text-xl text-[#91908b] mb-2">
+            {t('home.welcome', { name: userName })}
+          </Text>
+          <Text className="text-4xl font-bold text-black mb-1">{t('home.title')}</Text>
+          <Text className="text-lg text-[#a0a0a0]">{t('home.subtitle')}</Text>
         </View>
+        
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Profile")}
+          className="bg-[#e8ddd0] rounded-full p-3"
+        >
+          <Ionicons name="person" size={28} color="#6a5f53" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Button */}
+      <View className="flex-1 items-center justify-end pb-20">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Focus")}
+          activeOpacity={0.7}
+        >
+          <Image
+            source={require("../../../assets/buttonsfocus.png")}
+            className="w-[140px] h-[140px]"
+          />
+        </TouchableOpacity>
       </View>
     </ImageBackground>
   );

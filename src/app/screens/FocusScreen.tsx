@@ -226,7 +226,7 @@ const FocusScreen = () => {
 
 
   // Toggle volume control visibility
-  const toggleVolumeControl = () => {
+  const toggleVolumeControl = async () => {
     if (!hasPremium) {
       Alert.alert(
         "Premium Feature",
@@ -244,11 +244,11 @@ const FocusScreen = () => {
     setShowVolumeControl(!showVolumeControl);
   };
 
-  const taggleAnalytics = () => {
+  const taggleAnalytics = async () => {
     if (!hasPremium) {
       Alert.alert(
         "Premium Feature",
-        "Volume control is only available for premium subscribers.",
+        "Analytics are only available for premium subscribers.",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -281,7 +281,10 @@ const FocusScreen = () => {
           { text: "Cancel", style: "cancel" },
           {
             text: "Get Premium",
-            onPress: () => navigation.navigate("Paywall")
+            onPress: () => {
+              setMusicModalVisible(false);
+              navigation.navigate("Paywall");
+            }
           }
         ]
       );

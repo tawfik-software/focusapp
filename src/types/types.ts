@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Focus: undefined;
   StartingScreen: undefined;
   Analytics: undefined;
+  Profile: undefined;
 };
 
 export interface FocusSession {

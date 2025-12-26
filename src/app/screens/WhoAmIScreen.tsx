@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, ImageBackground } from 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 type WhoAmIScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'WhoAmI'>;
@@ -10,10 +11,11 @@ type WhoAmIScreenProps = {
 
 export default function WhoAmIScreen({ navigation }: WhoAmIScreenProps) {
   const [name, setName] = useState('');
+  const { t } = useTranslation();
 
   const handleNext = async () => {
     if (name.trim() === '') {
-      Alert.alert('Erreur', 'Veuillez entrer votre nom');
+      Alert.alert(t('whoami.errorEmpty'), t('whoami.errorEmpty'));
       return;
     }
 
@@ -21,7 +23,7 @@ export default function WhoAmIScreen({ navigation }: WhoAmIScreenProps) {
       await AsyncStorage.setItem('userName', name);
       navigation.navigate('Paywall');
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de sauvegarder votre nom');
+      Alert.alert(t('whoami.errorSave'), t('whoami.errorSave'));
     }
   };
 
@@ -33,15 +35,15 @@ export default function WhoAmIScreen({ navigation }: WhoAmIScreenProps) {
     >
       <View className="flex-1 items-center justify-center px-5">
         <Text className="text-black text-3xl font-bold mb-5">
-          Who am I?
+          {t('whoami.title')}
         </Text>
         <Text className="text-black text-lg mb-5">
-          What is your name?
+          {t('whoami.question')}
         </Text>
         
         <TextInput
           className="w-full bg-[#6a5f53] text-white text-lg p-4 rounded-xl mb-8 border-2 border-[#6a5f53]"
-          placeholder="Enter your name"
+          placeholder={t('whoami.placeholder')}
           placeholderTextColor="#FFF"
           value={name}
           onChangeText={setName}
@@ -52,7 +54,7 @@ export default function WhoAmIScreen({ navigation }: WhoAmIScreenProps) {
           className={`px-10 py-4 rounded-3xl ${name.trim() === '' ? 'bg-[#6a5f53]' : 'bg-[#6a5f53]'}`}
           onPress={handleNext}
         >
-          <Text className="text-white text-lg font-bold">next</Text>
+          <Text className="text-white text-lg font-bold">{t('whoami.nextButton')}</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
