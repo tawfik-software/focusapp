@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types/types';
+import { RootStackParamList } from '../types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 
@@ -39,7 +39,7 @@ export default function ReadyScreen({ navigation }: ReadyScreenProps) {
 
   return (
     <ImageBackground
-      source={require('../../../assets/background.png')}
+      source={require('../../assets/background.png')}
       className="flex-1"
       resizeMode="cover"
     >
@@ -58,7 +58,7 @@ export default function ReadyScreen({ navigation }: ReadyScreenProps) {
           onPress={handleStart}
         >
           <Image 
-            source={require('../../../assets/logofocusapp.png')} 
+            source={require('../../assets/logofocusapp.png')} 
             className="w-8 h-8"
           />
           <Text className="text-white text-lg font-bold">{t('ready.startButton')}</Text>

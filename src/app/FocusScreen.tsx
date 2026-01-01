@@ -14,12 +14,11 @@ import { AntDesign } from "@react-native-vector-icons/ant-design";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList, FocusSession } from "../../types/types";
+import { RootStackParamList, FocusSession } from "../types/types";
 import { AudioPlayer, useAudioPlayer } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { checkEntitlement } from "../../services/revenueCat";
+import { checkEntitlement } from "../services/revenueCat";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 
 // Define navigation prop type
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -42,79 +41,79 @@ const FocusScreen = () => {
   const [hasFreeTrial, setHasFreeTrial] = useState(true);
   const [hasPremium, setHasPremium] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const player = useAudioPlayer(require("../../../assets/music/music1.mp3"));
+  const player = useAudioPlayer(require("../../assets/music/music1.mp3"));
 
   // Music library
   const musicLibrary = [
     {
       id: "music1",
       name: "music1",
-      source: require("../../../assets/music/music1.mp3"),
+      source: require("../../assets/music/music1.mp3"),
     },
     {
       id: "music2",
       name: "music2",
-      source: require("../../../assets/music/music2.mp3"),
+      source: require("../../assets/music/music2.mp3"),
     },
     {
       id: "music3",
       name: "music3",
-      source: require("../../../assets/music/music3.mp3"),
+      source: require("../../assets/music/music3.mp3"),
     },
     {
       id: "music4",
       name: "music4",
-      source: require("../../../assets/music/music4.mp3"),
+      source: require("../../assets/music/music4.mp3"),
     },
     {
       id: "music5",
       name: "music5",
-      source: require("../../../assets/music/music5.mp3"),
+      source: require("../../assets/music/music5.mp3"),
     },
     {
       id: "music6",
       name: "music6",
-      source: require("../../../assets/music/music6.mp3"),
+      source: require("../../assets/music/music6.mp3"),
     },
     {
       id: "music7",
       name: "music7",
-      source: require("../../../assets/music/music7.mp3"),
+      source: require("../../assets/music/music7.mp3"),
     },
     {
       id: "music8",
       name: "music8",
-      source: require("../../../assets/music/music8.mp3"),
+      source: require("../../assets/music/music8.mp3"),
     },
     {
       id: "music9",
       name: "music9",
-      source: require("../../../assets/music/music9.mp3"),
+      source: require("../../assets/music/music9.mp3"),
     },
     {
       id: "music10",
       name: "music10",
-      source: require("../../../assets/music/music10.mp3"),
+      source: require("../../assets/music/music10.mp3"),
     },
     {
       id: "music11",
       name: "music11",
-      source: require("../../../assets/music/music11.mp3"),
+      source: require("../../assets/music/music11.mp3"),
     },
     {
       id: "music12",
       name: "music12",
-      source: require("../../../assets/music/music12.mp3"),
+      source: require("../../assets/music/music12.mp3"),
     },
     {
       id: "music13",
       name: "music13",
-      source: require("../../../assets/music/music13.mp3"),
+      source: require("../../assets/music/music13.mp3"),
     },
     {
       id: "music14",
       name: "music14",
-      source: require("../../../assets/music/music14.mp3"),
+      source: require("../../assets/music/music14.mp3"),
     },
   ];
 
@@ -224,7 +223,6 @@ const FocusScreen = () => {
     );
   };
 
-
   // Toggle volume control visibility
   const toggleVolumeControl = async () => {
     if (!hasPremium) {
@@ -235,8 +233,8 @@ const FocusScreen = () => {
           { text: "Cancel", style: "cancel" },
           {
             text: "Get Premium",
-            onPress: () => navigation.navigate("Paywall")
-          }
+            onPress: () => navigation.navigate("Paywall"),
+          },
         ]
       );
       return;
@@ -253,14 +251,14 @@ const FocusScreen = () => {
           { text: "Cancel", style: "cancel" },
           {
             text: "Get Premium",
-            onPress: () => navigation.navigate("Paywall")
-          }
+            onPress: () => navigation.navigate("Paywall"),
+          },
         ]
       );
       return;
     }
     navigation.navigate("Analytics");
-  }
+  };
   // Update volume
   const updateVolume = async (newVolume: number) => {
     if (!hasPremium) {
@@ -284,8 +282,8 @@ const FocusScreen = () => {
             onPress: () => {
               setMusicModalVisible(false);
               navigation.navigate("Paywall");
-            }
-          }
+            },
+          },
         ]
       );
       return;
@@ -421,12 +419,11 @@ const FocusScreen = () => {
 
   return (
     <ImageBackground
-      source={require("../../../assets/focusfallback.png")}
+      source={require("../../assets/focusfallback.png")}
       className="flex-1"
       resizeMode="cover"
     >
       <SafeAreaView className="flex-1">
-
         {/* HEADER */}
         <View className="flex-row justify-between items-center px-5 pt-4">
           <TouchableOpacity onPress={() => navigation.navigate("Home")}>
@@ -457,10 +454,12 @@ const FocusScreen = () => {
           <View className="mx-5 mt-4 bg-white/90 rounded-xl p-4">
             <View className="flex-row justify-between items-center mb-2">
               <Text className="text-[#6a5f53] font-semibold">Volume</Text>
-              <Text className="text-[#91908b] font-bold">{Math.round(volume * 100)}%</Text>
+              <Text className="text-[#91908b] font-bold">
+                {Math.round(volume * 100)}%
+              </Text>
             </View>
             <Slider
-              style={{ width: '100%', height: 40 }}
+              style={{ width: "100%", height: 40 }}
               minimumValue={0}
               maximumValue={1}
               value={volume}
@@ -479,9 +478,11 @@ const FocusScreen = () => {
               {formatTime(seconds)}
             </Text>
           ) : (
-            <Text className="text-[#6a5f53] text-2xl font-bold inset-x-40 top-24 absolute">
-              STAY FOCUSED
-            </Text>
+            <View className="absolute top-24 left-0 right-0 items-center">
+              <Text className="text-[#6a5f53] text-2xl font-bold tracking-widest uppercase">
+                STAY FOCUSED
+              </Text>
+            </View>
           )}
         </View>
 
@@ -492,18 +493,14 @@ const FocusScreen = () => {
               className="bg-[#b6ac8f] px-14 py-4 rounded-xl"
               onPress={stopTimer}
             >
-              <Text className="text-white text-lg font-bold">
-                STOP FOCUS
-              </Text>
+              <Text className="text-white text-lg font-bold">STOP FOCUS</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               className="bg-[#91908b] px-14 py-4 rounded-xl"
               onPress={requestScreenTimePermission}
             >
-              <Text className="text-white text-lg font-bold">
-                START FOCUS
-              </Text>
+              <Text className="text-white text-lg font-bold">START FOCUS</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -513,53 +510,65 @@ const FocusScreen = () => {
           animationType="slide"
           transparent={true}
           visible={permissionModalVisible}
-          onRequestClose={() => setPermissionModalVisible(false)} >
+          onRequestClose={() => setPermissionModalVisible(false)}
+        >
           <View className="flex-1 justify-center items-center bg-black/50">
             <View className="bg-white rounded-2xl p-8 mx-5 items-center w-80">
               <Text className="text-3xl mb-4">⏱️</Text>
               <Text className="text-2xl font-bold text-[#91908b] mb-4 text-center">
-                Accès au suivi du temps </Text>
+                Accès au suivi du temps{" "}
+              </Text>
               <Text className="text-[#6a5f53] mb-6 text-center">
-                Pour suivre votre temps de concentration, nous avons besoin d'accéder au suivi
-                du temps sur votre appareil. </Text>
+                Pour suivre votre temps de concentration, nous avons besoin
+                d'accéder au suivi du temps sur votre appareil.{" "}
+              </Text>
               <View className="w-full gap-3">
-                <TouchableOpacity className="bg-[#91908b] px-8 py-3 rounded-lg w-full"
-                  onPress={handlePermissionGranted} >
+                <TouchableOpacity
+                  className="bg-[#91908b] px-8 py-3 rounded-lg w-full"
+                  onPress={handlePermissionGranted}
+                >
                   <Text className="text-white text-center font-bold text-lg">
                     Autoriser
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="bg-[#e8ddd0] px-8 py-3 rounded-lg w-full"
-                  onPress={handlePermissionDenied} >
+                <TouchableOpacity
+                  className="bg-[#e8ddd0] px-8 py-3 rounded-lg w-full"
+                  onPress={handlePermissionDenied}
+                >
                   <Text className="text-[#6a5f53] text-center font-bold text-lg">
-                    Refuser </Text>
+                    Refuser{" "}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
         </Modal>
-        
+
         {/* Modal de fin de session */}
-        <Modal animationType="fade"
+        <Modal
+          animationType="fade"
           transparent={true}
           visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)} >
+          onRequestClose={() => setModalVisible(false)}
+        >
           {/* Modal content */}
           <View className="flex-1 justify-center items-center bg-black/50">
             <View className="bg-white rounded-2xl p-8 mx-5 items-center w-80">
               <Text className="text-2xl font-bold text-[#6a5f53] mb-4">
-                Excellent work! 🎉 </Text>
-              <Text className="text-gray-600 mb-2">
-                Focus time:
+                Excellent work! 🎉{" "}
               </Text>
+              <Text className="text-gray-600 mb-2">Focus time:</Text>
               <Text className="text-5xl font-bold text-[#6a5f53] mb-6">
                 {formatTime(focusTime)}
               </Text>
-              <TouchableOpacity className="bg-[#91908b] px-8 py-3 rounded-lg w-full"
-                onPress={() => setModalVisible(false)} >
+              <TouchableOpacity
+                className="bg-[#91908b] px-8 py-3 rounded-lg w-full"
+                onPress={() => setModalVisible(false)}
+              >
                 {/* Close button */}
                 <Text className="text-white text-center font-bold text-lg">
-                  close </Text>
+                  close{" "}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -574,14 +583,16 @@ const FocusScreen = () => {
         >
           <View className="flex-1 justify-end bg-black/40">
             <ScrollView className="bg-white rounded-t-3xl p-6 max-h-[70%]">
-
               {/* Title */}
               <Text className="text-2xl font-bold text-black text-center mb-6">
                 🎧 Choose Focus Music
               </Text>
 
               {/* Close Icon */}
-              <TouchableOpacity className="absolute right-2" onPress={() => setMusicModalVisible(false)}>
+              <TouchableOpacity
+                className="absolute right-2"
+                onPress={() => setMusicModalVisible(false)}
+              >
                 <AntDesign name="close-circle" size={24} color="#91908b" />
               </TouchableOpacity>
 
@@ -593,9 +604,10 @@ const FocusScreen = () => {
                     onPress={() => handleMusicSelection(music.id)}
                     activeOpacity={0.8}
                     className={`flex-row justify-between items-center p-4 rounded-xl border
-                      ${selectedMusic === music.id
-                        ? "border-black bg-gray-100"
-                        : "border-gray-300 bg-white"
+                      ${
+                        selectedMusic === music.id
+                          ? "border-black bg-gray-100"
+                          : "border-gray-300 bg-white"
                       }
                `}
                   >

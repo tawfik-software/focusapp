@@ -6,9 +6,9 @@ export const presentPaywall = async (): Promise<boolean> => {
   try {
     // Check if offerings are available
     const offerings = await Purchases.getOfferings();
-    console.log('Available offerings:', offerings);
     console.log('Current offering:', offerings.current);
-    console.log('All offerings:', Object.keys(offerings.all));
+    console.log('All offerings:', offerings.all);
+
     
     if (!offerings.current) {
       Alert.alert(

@@ -9,17 +9,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, FocusSession } from '../../types/types';
+import { RootStackParamList, FocusSession } from '../types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { checkEntitlement } from '../../services/revenueCat';
+import { checkEntitlement } from '../services/revenueCat';
 import Purchases from 'react-native-purchases';
 import { useTranslation } from 'react-i18next';
 import i18n from 'i18next';
-import LanguageSelector from '../../components/LanguageSelector';
+import LanguageSelector from '../components/LanguageSelector';
 
 type ProfileScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Profile'>;
@@ -143,7 +143,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
 
   return (
     <ImageBackground
-      source={require('../../../assets/background.png')}
+      source={require('../../assets/background.png')}
       className="flex-1"
       resizeMode="cover"
     >

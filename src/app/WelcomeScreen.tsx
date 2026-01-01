@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ImageBackground } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types/types';
+import { RootStackParamList } from '../types/types';
 import { useTranslation } from 'react-i18next';
 
 type WelcomeScreenProps = {
@@ -13,7 +13,7 @@ export default function WelcomeScreen({ navigation }: WelcomeScreenProps) {
   
   return (
     <ImageBackground
-      source={require('../../../assets/background.png')}
+      source={require('../../assets/background.png')}
       className="flex-1"
       resizeMode="cover"
     >

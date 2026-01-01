@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../types/types";
-import { checkEntitlement } from "../../services/revenueCat";
+import { RootStackParamList } from "../types/types";
+import { checkEntitlement } from "../services/revenueCat";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from 'react-i18next';
 
@@ -66,18 +66,21 @@ export default function HomeScreen({ navigation }: Props) {
 
   return (
     <ImageBackground
-      source={require("../../../assets/firstfocusfallback.png")}
+      source={require("../../assets/firstfocusfallback.png")}
       className="flex-1"
       resizeMode="cover"
     >
       {/* Header with Profile Button */}
       <View className="flex-row justify-between items-center px-5 pt-12">
         <View>
+          <View className="top-4 left-0 right-0">
+
           <Text className="text-xl text-[#91908b] mb-2">
             {t('home.welcome', { name: userName })}
           </Text>
           <Text className="text-4xl font-bold text-black mb-1">{t('home.title')}</Text>
           <Text className="text-lg text-[#a0a0a0]">{t('home.subtitle')}</Text>
+          </View>
         </View>
         
         <TouchableOpacity
@@ -95,7 +98,7 @@ export default function HomeScreen({ navigation }: Props) {
           activeOpacity={0.7}
         >
           <Image
-            source={require("../../../assets/buttonsfocus.png")}
+            source={require("../../assets/buttonsfocus.png")}
             className="w-[140px] h-[140px]"
           />
         </TouchableOpacity>

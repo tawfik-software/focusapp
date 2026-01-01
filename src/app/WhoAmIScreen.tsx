@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ImageBackground } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types/types';
+import { RootStackParamList } from '../types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 
@@ -29,7 +29,7 @@ export default function WhoAmIScreen({ navigation }: WhoAmIScreenProps) {
 
   return (
     <ImageBackground
-      source={require('../../../assets/background.png')}
+      source={require('../../assets/background.png')}
       className="flex-1"
       resizeMode="cover"
     >

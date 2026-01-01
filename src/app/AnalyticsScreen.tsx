@@ -5,13 +5,20 @@ import {
   ImageBackground,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
+  Alert,
 } from "react-native";
 import { AntDesign } from "@react-native-vector-icons/ant-design";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList, FocusSession, DailyStats } from "../../types/types";
+import { RootStackParamList, FocusSession, DailyStats } from "../types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  saveAnalyticsHistory,
+  getAnalyticsHistory,
+  calculateDailyStats,
+  clearAnalyticsHistory,
+  getLastSyncDate,
+} from "../utils/ananalyticsHistory";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -21,65 +28,93 @@ const AnalyticsScreen = () => {
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [totalTime, setTotalTime] = useState(0);
   const [userName, setUserName] = useState("");
+  const [lastSync, setLastSync] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadData();
   }, []);
 
+  // Sauvegarder automatiquement quand les données changent
+  useEffect(() => {
+    if (sessions.length > 0 && !isLoading) {
+      saveAnalyticsHistory(sessions, dailyStats, totalTime);
+    }
+  }, [sessions, dailyStats, totalTime]);
+
   const loadData = async () => {
     try {
+      setIsLoading(true);
+
       // Load user name
       const name = await AsyncStorage.getItem("userName");
       if (name) {
         setUserName(name);
       }
 
-      // Load all sessions
-      const sessionsData = await AsyncStorage.getItem("@focus_sessions");
-      if (sessionsData) {
-        const parsedSessions: FocusSession[] = JSON.parse(sessionsData);
-        setSessions(parsedSessions);
+      // Essayer de récupérer l'historique sauvegardé d'abord
+      const savedHistory = await getAnalyticsHistory();
+      
+      if (savedHistory) {
+        console.log("📂 Historique trouvé - Chargement...");
+        setSessions(savedHistory.sessions);
+        setDailyStats(savedHistory.dailyStats);
+        setTotalTime(savedHistory.totalTime);
         
-        // Calculate stats
-        calculateStats(parsedSessions);
+        // Afficher la date de dernière sync
+        const syncDate = await getLastSyncDate();
+        setLastSync(syncDate);
+      } else {
+        console.log("📂 Aucun historique - Chargement des sessions brutes...");
+        // Si pas d'historique, charger depuis les sessions brutes
+        const sessionsData = await AsyncStorage.getItem("@focus_sessions");
+        if (sessionsData) {
+          const parsedSessions: FocusSession[] = JSON.parse(sessionsData);
+          setSessions(parsedSessions);
+          
+          // Calculate stats
+          const { dailyStats: stats, totalTime: total } = 
+            calculateDailyStats(parsedSessions);
+          setDailyStats(stats);
+          setTotalTime(total);
+          
+          // Sauvegarder l'historique pour la prochaine fois
+          await saveAnalyticsHistory(parsedSessions, stats, total);
+        }
       }
     } catch (error) {
       console.log("Error loading analytics data:", error);
+      Alert.alert("Erreur", "Impossible de charger les données d'analyse");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const calculateStats = (sessions: FocusSession[]) => {
-    // Group sessions by date
-    const grouped: { [key: string]: FocusSession[] } = {};
-    let total = 0;
-
-    sessions.forEach((session) => {
-      if (!grouped[session.date]) {
-        grouped[session.date] = [];
-      }
-      grouped[session.date].push(session);
-      total += session.duration;
-    });
-
-    // Create daily stats
-    const stats: DailyStats[] = Object.keys(grouped)
-      .sort((a, b) => b.localeCompare(a)) // Sort by date descending
-      .map((date) => {
-        const daySessions = grouped[date];
-        const totalDuration = daySessions.reduce(
-          (sum, s) => sum + s.duration,
-          0
-        );
-        return {
-          date,
-          totalDuration,
-          sessionCount: daySessions.length,
-          sessions: daySessions,
-        };
-      });
-
-    setDailyStats(stats);
-    setTotalTime(total);
+  const handleClearHistory = () => {
+    Alert.alert(
+      "Supprimer l'historique",
+      "Êtes-vous sûr de vouloir supprimer tout l'historique ? Cette action est irréversible.",
+      [
+        {
+          text: "Annuler",
+          style: "cancel",
+        },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: async () => {
+            const success = await clearAnalyticsHistory();
+            if (success) {
+              setSessions([]);
+              setDailyStats([]);
+              setTotalTime(0);
+              setLastSync(null);
+              Alert.alert("Succès", "Historique supprimé");
+            }
+          },
+        },
+      ]
+    );
   };
 
   const formatTime = (totalSeconds: number): string => {
@@ -122,9 +157,36 @@ const AnalyticsScreen = () => {
     return maxDuration > 0 ? (duration / maxDuration) * 120 : 0;
   };
 
+  const formatLastSync = (dateString: string | null): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <ImageBackground
+        source={require("../../assets/firstfocusfallback.png")}
+        className="flex-1"
+        resizeMode="cover"
+      >
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-[#6a5f53] text-lg">
+            Chargement de l'historique...
+          </Text>
+        </View>
+      </ImageBackground>
+    );
+  }
+
   return (
     <ImageBackground
-      source={require("../../../assets/firstfocusfallback.png")}
+      source={require("../../assets/firstfocusfallback.png")}
       className="flex-1"
       resizeMode="cover"
     >
@@ -134,13 +196,22 @@ const AnalyticsScreen = () => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <AntDesign name="left-circle" size={30} color="#6a5f53" />
           </TouchableOpacity>
-          <Text className="text-2xl font-bold text-[#6a5f53]">
-            Analytics
-          </Text>
-          <View style={{ width: 30 }} />
+          <Text className="text-2xl font-bold text-[#6a5f53]">Analytics</Text>
+          <TouchableOpacity onPress={handleClearHistory}>
+            <AntDesign name="delete" size={24} color="#6a5f53" />
+          </TouchableOpacity>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Last Sync Info */}
+          {lastSync && (
+            <View className="bg-blue-100/80 rounded-lg p-3 mb-3">
+              <Text className="text-[#6a5f53] text-xs text-center">
+                💾 Dernière sauvegarde: {formatLastSync(lastSync)}
+              </Text>
+            </View>
+          )}
+
           {/* Stats Overview */}
           <View className="bg-white/80 rounded-2xl p-5 mb-5">
             <Text className="text-[#6a5f53] text-lg font-bold mb-3">
@@ -172,7 +243,7 @@ const AnalyticsScreen = () => {
           {dailyStats.length > 0 && (
             <View className="bg-white/80 rounded-2xl p-5 mb-5">
               <Text className="text-[#6a5f53] text-lg font-bold mb-4">
-                📈 Last 7 day
+                📈 Last 7 days
               </Text>
               <View className="flex-row justify-around items-end h-[140px]">
                 {dailyStats.slice(0, 7).reverse().map((stat, index) => (
@@ -203,9 +274,14 @@ const AnalyticsScreen = () => {
               📅 History
             </Text>
             {dailyStats.length === 0 ? (
-              <Text className="text-gray-500 text-center py-4">
-                No sessions recorded yet.
-              </Text>
+              <View className="items-center py-8">
+                <Text className="text-gray-500 text-center text-lg mb-2">
+                  Aucune session enregistrée
+                </Text>
+                <Text className="text-gray-400 text-center text-sm">
+                  Commencez une session de focus pour voir vos statistiques
+                </Text>
+              </View>
             ) : (
               dailyStats.map((dayStat, index) => (
                 <View key={index} className="mb-4">

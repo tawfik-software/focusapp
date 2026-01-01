@@ -8,14 +8,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import './src/services/i18n';
 
-import WelcomeScreen from './src/app/screens/WelcomeScreen';
-import WhoAmIScreen from './src/app/screens/WhoAmIScreen';
-import PaywallScreen from './src/app/screens/PaywallScreen';
-import ReadyScreen from './src/app/screens/ReadyScreen';
-import HomeScreen from './src/app/screens/HomeScreen';
-import FocusScreen from './src/app/screens/FocusScreen';
-import AnalyticsScreen from './src/app/screens/AnalyticsScreen';
-import ProfileScreen from './src/app/screens/ProfileScreen';
+import WelcomeScreen from './src/app/WelcomeScreen';
+import WhoAmIScreen from './src/app/WhoAmIScreen';
+import PaywallScreen from './src/app/PaywallScreen';
+import ReadyScreen from './src/app/ReadyScreen';
+import HomeScreen from './src/app/HomeScreen';
+import FocusScreen from './src/app/FocusScreen';
+import AnalyticsScreen from './src/app/AnalyticsScreen';
+import ProfileScreen from './src/app/ProfileScreen';
 import { RootStackParamList } from './src/types/types';
 import { configureRevenueCat } from './src/services/revenueCat';
 

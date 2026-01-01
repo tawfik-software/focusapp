@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types/types';
-import { checkEntitlement } from '../../services/revenueCat';
+import { RootStackParamList } from '../types/types';
+import { checkEntitlement } from '../services/revenueCat';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Purchases, { PurchasesPackage } from 'react-native-purchases';
 import { useTranslation } from 'react-i18next';
+import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
+import { presentPaywall } from '../services/paywall';
 
 type PaywallScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
@@ -15,7 +17,7 @@ type PaywallScreenProps = {
 
 export default function PaywallScreen({ navigation }: PaywallScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
+  const [selectedPlan, setSelectedPlan] = useState<'focusapp_monthly' | 'focusapp_yearly'>('focusapp_yearly');
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const { t } = useTranslation();
 
@@ -43,39 +45,33 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
   };
 
   const handleSubscribe = async () => {
-    setIsLoading(true);
-    
-    try {
-      // Trouver le package correspondant au plan sélectionné
-      const packageToPurchase = packages.find(pkg => 
-        selectedPlan === 'monthly' 
-          ? pkg.packageType === 'MONTHLY'
-          : pkg.packageType === 'ANNUAL'
-      );
+  setIsLoading(true);
+  try {
+    // 1. Trouver le package correspondant au plan sélectionné
+    const packageToBuy = packages.find(pkg => 
+      pkg.identifier === (selectedPlan === 'focusapp_yearly' ? '$rc_annual' : '$rc_monthly')
+    );
 
-      if (!packageToPurchase) {
-        Alert.alert(t('paywall.error'), t('paywall.packageError'));
-        setIsLoading(false);
-        return;
-      }
-
-      // Effectuer l'achat directement
-      const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
-
-      // Vérifier si l'utilisateur a maintenant l'accès pro
-      if (typeof customerInfo.entitlements.active['focusapp Pro'] !== 'undefined') {
+    if (packageToBuy) {
+      // 2. Lancer l'achat directement sans ouvrir d'autre interface
+      const { customerInfo } = await Purchases.purchasePackage(packageToBuy);
+      
+      // 3. Vérifier si l'abonnement est actif
+      if (typeof customerInfo.entitlements.active['pro'] !== "undefined") {
         await AsyncStorage.setItem('hasFreeTrial', 'false');
         navigation.replace('Ready');
       }
-    } catch (e: any) {
-      if (!e.userCancelled) {
-        Alert.alert(t('paywall.error'), t('paywall.purchaseError'));
-        console.error('Purchase error:', e);
-      }
-    } finally {
-      setIsLoading(false);
+    } else {
+      Alert.alert("Erreur", "Offre non disponible pour le moment.");
     }
-  };
+  } catch (e: any) {
+    if (!e.userCancelled) {
+      Alert.alert("Erreur", e.message);
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleMaybeLater = async () => {
     // Set free trial mode - limited access
@@ -85,7 +81,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
 
   return (
     <ImageBackground
-      source={require('../../../assets/background.png')}
+      source={require('../../assets/background.png')}
       className="flex-1"
       resizeMode="cover"
     >
@@ -111,9 +107,9 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
           <View className="mb-8">
             {/* Yearly Plan */}
             <TouchableOpacity
-              onPress={() => setSelectedPlan('yearly')}
+              onPress={() => setSelectedPlan('focusapp_yearly')}
               className={`rounded-3xl p-6 mb-4 border-2 ${
-                selectedPlan === 'yearly' 
+                selectedPlan === 'focusapp_yearly' 
                   ? 'bg-[#91908b] border-[#91908b]' 
                   : 'bg-[#e8ddd0] border-[#d4c9ba]'
               }`}
@@ -121,7 +117,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <View className="flex-row justify-between items-center mb-2">
                 <View className="flex-row items-center">
                   <Text className={`text-2xl font-bold ${
-                    selectedPlan === 'yearly' ? 'text-white' : 'text-[#91908b]'
+                    selectedPlan === 'focusapp_yearly' ? 'text-white' : 'text-[#91908b]'
                   }`}>
                     {t('paywall.yearlyPlan')}
                   </Text>
@@ -130,22 +126,22 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
                   </View>
                 </View>
                 <View className={`w-6 h-6 rounded-full border-2 ${
-                  selectedPlan === 'yearly' 
+                  selectedPlan === 'focusapp_yearly' 
                     ? 'bg-white border-white' 
                     : 'border-[#91908b]'
                 }`}>
-                  {selectedPlan === 'yearly' && (
+                  {selectedPlan === 'focusapp_yearly' && (
                     <Ionicons name="checkmark" size={20} color="#91908b" />
                   )}
                 </View>
               </View>
               <Text className={`text-3xl font-bold ${
-                selectedPlan === 'yearly' ? 'text-white' : 'text-[#91908b]'
+                selectedPlan === 'focusapp_yearly' ? 'text-white' : 'text-[#91908b]'
               }`}>
                 $79.99/year
               </Text>
               <Text className={`text-sm mt-1 ${
-                selectedPlan === 'yearly' ? 'text-white/80' : 'text-[#6a5f53]'
+                selectedPlan === 'focusapp_yearly' ? 'text-white/80' : 'text-[#6a5f53]'
               }`}>
                 Just $6.67/month
               </Text>
@@ -153,36 +149,36 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
 
             {/* Monthly Plan */}
             <TouchableOpacity
-              onPress={() => setSelectedPlan('monthly')}
+              onPress={() => setSelectedPlan('focusapp_monthly')}
               className={`rounded-3xl p-6 border-2 ${
-                selectedPlan === 'monthly' 
+                selectedPlan === 'focusapp_monthly' 
                   ? 'bg-[#91908b] border-[#91908b]' 
                   : 'bg-[#e8ddd0] border-[#d4c9ba]'
               }`}
             >
               <View className="flex-row justify-between items-center mb-2">
                 <Text className={`text-2xl font-bold ${
-                  selectedPlan === 'monthly' ? 'text-white' : 'text-[#91908b]'
+                  selectedPlan === 'focusapp_monthly' ? 'text-white' : 'text-[#91908b]'
                 }`}>
                   {t('paywall.monthlyPlan')}
                 </Text>
                 <View className={`w-6 h-6 rounded-full border-2 ${
-                  selectedPlan === 'monthly' 
+                  selectedPlan === 'focusapp_monthly' 
                     ? 'bg-white border-white' 
                     : 'border-[#91908b]'
                 }`}>
-                  {selectedPlan === 'monthly' && (
+                  {selectedPlan === 'focusapp_monthly' && (
                     <Ionicons name="checkmark" size={20} color="#91908b" />
                   )}
                 </View>
               </View>
               <Text className={`text-3xl font-bold ${
-                selectedPlan === 'monthly' ? 'text-white' : 'text-[#91908b]'
+                selectedPlan === 'focusapp_monthly' ? 'text-white' : 'text-[#91908b]'
               }`}>
                 $9.99/month
               </Text>
               <Text className={`text-sm mt-1 ${
-                selectedPlan === 'monthly' ? 'text-white/80' : 'text-[#6a5f53]'
+                selectedPlan === 'focusapp_monthly' ? 'text-white/80' : 'text-[#6a5f53]'
               }`}>
                 Billed monthly
               </Text>
@@ -209,7 +205,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
                 <ActivityIndicator color="#FFF" />
               ) : (
                 <Text className="text-white text-xl font-bold text-center">
-                  {t('paywall.subscribe')} - {selectedPlan === 'yearly' ? t('paywall.yearlyPlan') : t('paywall.monthlyPlan')}
+                  {t('paywall.subscribe')} - {selectedPlan === 'focusapp_yearly' ? t('paywall.yearlyPlan') : t('paywall.monthlyPlan')}
                 </Text>
               )}
             </TouchableOpacity>
