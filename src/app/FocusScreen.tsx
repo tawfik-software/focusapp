@@ -478,7 +478,7 @@ const FocusScreen = () => {
               {formatTime(seconds)}
             </Text>
           ) : (
-            <View className="absolute top-24 left-0 right-0 items-center">
+            <View className="absolute top-14 left-0 right-0 items-center">
               <Text className="text-[#6a5f53] text-2xl font-bold tracking-widest uppercase">
                 STAY FOCUSED
               </Text>
