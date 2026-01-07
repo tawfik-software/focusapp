@@ -28,12 +28,33 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
 
   const loadPackages = async () => {
     try {
+      console.log('🔄 Chargement des offerings...');
       const offerings = await Purchases.getOfferings();
+      
+      console.log('📊 Résultat offerings:');
+      console.log('  - Current offering:', offerings.current?.identifier || 'AUCUN');
+      console.log('  - Tous les offerings:', Object.keys(offerings.all));
+      
       if (offerings.current !== null && offerings.current.availablePackages.length > 0) {
         setPackages(offerings.current.availablePackages);
+        console.log('✅ Packages disponibles:', offerings.current.availablePackages.length);
+        offerings.current.availablePackages.forEach(pkg => {
+          console.log(`  📦 ${pkg.packageType}:`, {
+            identifier: pkg.identifier,
+            productId: pkg.product.identifier,
+            price: pkg.product.priceString
+          });
+        });
+      } else {
+        console.log('❌ PROBLÈME: Aucune offre disponible');
+        console.log('Vérifiez:');
+        console.log('1. Les produits sont "Prêt à soumettre" dans App Store Connect');
+        console.log('2. Les abonnements sont attachés à votre version App Store');
+        console.log('3. Le Bundle ID correspond dans Xcode, App Store Connect et RevenueCat');
       }
-    } catch (e) {
-      console.error('Error loading packages:', e);
+    } catch (e: any) {
+      console.error('❌ Erreur chargement packages:', e);
+      console.error('Message:', e.message);
     }
   };
 
@@ -47,26 +68,52 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
   const handleSubscribe = async () => {
   setIsLoading(true);
   try {
-    // 1. Trouver le package correspondant au plan sélectionné
-    const packageToBuy = packages.find(pkg => 
-      pkg.identifier === (selectedPlan === 'focusapp_yearly' ? '$rc_annual' : '$rc_monthly')
-    );
+    console.log('🛒 Tentative d\'achat pour:', selectedPlan);
+    console.log('📦 Packages disponibles:', packages.length);
+    
+    // Chercher par type de package plutôt que par identifier
+    const packageToBuy = selectedPlan === 'focusapp_yearly' 
+      ? packages.find(pkg => pkg.packageType === 'ANNUAL')
+      : packages.find(pkg => pkg.packageType === 'MONTHLY');
 
-    if (packageToBuy) {
-      // 2. Lancer l'achat directement sans ouvrir d'autre interface
-      const { customerInfo } = await Purchases.purchasePackage(packageToBuy);
+    if (!packageToBuy) {
+      // Fallback: chercher par identifier de produit
+      const productId = selectedPlan === 'focusapp_yearly' ? 'focusapp_yearly' : 'focusapp_monthly';
+      const fallbackPackage = packages.find(pkg => pkg.product.identifier === productId);
       
-      // 3. Vérifier si l'abonnement est actif
-      if (typeof customerInfo.entitlements.active['pro'] !== "undefined") {
-        await AsyncStorage.setItem('hasFreeTrial', 'false');
-        navigation.replace('Ready');
+      if (fallbackPackage) {
+        console.log('✅ Package trouvé via product ID:', fallbackPackage.product.identifier);
+        const { customerInfo } = await Purchases.purchasePackage(fallbackPackage);
+        
+        if (typeof customerInfo.entitlements.active['focusapp Pro'] !== "undefined") {
+          await AsyncStorage.setItem('hasFreeTrial', 'false');
+          navigation.replace('Ready');
+        }
+        return;
       }
-    } else {
-      Alert.alert("Erreur", "Offre non disponible pour le moment.");
+      
+      // Aucun package trouvé
+      console.error('❌ Aucun package trouvé. Packages disponibles:', 
+        packages.map(p => ({ id: p.identifier, type: p.packageType, productId: p.product.identifier }))
+      );
+      Alert.alert(
+        "Offre non disponible", 
+        "Les produits ne sont pas encore configurés. Vérifiez App Store Connect."
+      );
+      return;
+    }
+
+    console.log('✅ Package trouvé:', packageToBuy.identifier);
+    const { customerInfo } = await Purchases.purchasePackage(packageToBuy);
+    
+    if (typeof customerInfo.entitlements.active['focusapp Pro'] !== "undefined") {
+      await AsyncStorage.setItem('hasFreeTrial', 'false');
+      navigation.replace('Ready');
     }
   } catch (e: any) {
+    console.error('❌ Erreur d\'achat:', e);
     if (!e.userCancelled) {
-      Alert.alert("Erreur", e.message);
+      Alert.alert("Erreur d'achat", e.message || "Une erreur est survenue");
     }
   } finally {
     setIsLoading(false);

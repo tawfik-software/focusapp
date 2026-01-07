@@ -177,36 +177,94 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
           </View>
 
           {/* Quick Stats */}
-          <View className="bg-white/90 rounded-2xl p-6 mb-6">
-            <Text className="text-[#6a5f53] text-xl font-bold mb-4">📊 {t('profile.statistics')}</Text>
-            <View className="flex-row justify-around">
-              <View className="items-center">
-                <Text className="text-[#91908b] text-3xl font-bold">{sessions.length}</Text>
-                <Text className="text-[#b5a99a] text-sm mt-1">{t('profile.totalSessions')}</Text>
-              </View>
-              <View className="items-center">
-                <Text className="text-[#91908b] text-3xl font-bold">{formatTime(totalFocusTime)}</Text>
-                <Text className="text-[#b5a99a] text-sm mt-1">{t('profile.totalFocusTime')}</Text>
+          {hasPremium ? (
+            <View className="bg-white/90 rounded-2xl p-6 mb-6">
+              <Text className="text-[#6a5f53] text-xl font-bold mb-4">📊 {t('profile.statistics')}</Text>
+              <View className="flex-row justify-around">
+                <View className="items-center">
+                  <Text className="text-[#91908b] text-3xl font-bold">{sessions.length}</Text>
+                  <Text className="text-[#b5a99a] text-sm mt-1">{t('profile.totalSessions')}</Text>
+                </View>
+                <View className="items-center">
+                  <Text className="text-[#91908b] text-3xl font-bold">{formatTime(totalFocusTime)}</Text>
+                  <Text className="text-[#b5a99a] text-sm mt-1">{t('profile.totalFocusTime')}</Text>
+                </View>
               </View>
             </View>
-          </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Paywall')}
+              className="bg-white/90 rounded-2xl p-6 mb-6 items-center"
+            >
+              <Ionicons name="lock-closed" size={40} color="#91908b" className="mb-3" />
+              <Text className="text-[#6a5f53] text-xl font-bold mb-2">📊 {t('profile.statistics')}</Text>
+              <Text className="text-[#b5a99a] text-center mb-4">
+                Upgrade to Premium to view your statistics
+              </Text>
+              <View className="bg-[#91908b] px-6 py-2 rounded-full">
+                <Text className="text-white font-semibold">Unlock Premium</Text>
+              </View>
+            </TouchableOpacity>
+          )}
 
           {/* Quick Actions */}
-          <View className="bg-white/90 rounded-2xl p-4 mb-6">
-            <Text className="text-[#6a5f53] text-xl font-bold mb-4 px-2">⚡ Quick Actions</Text>
-            
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Analytics')}
-              className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0]"
-            >
-              <View className="flex-row items-center">
-                <AntDesign name="bar-chart" size={24} color="#91908b" />
-                <Text className="text-[#6a5f53] text-base ml-4">View Analytics</Text>
-              </View>
-              <AntDesign name="right" size={20} color="#b5a99a" />
-            </TouchableOpacity>
+          {hasPremium ? (
+            <View className="bg-white/90 rounded-2xl p-4 mb-6">
+              <Text className="text-[#6a5f53] text-xl font-bold mb-4 px-2">⚡ Quick Actions</Text>
+              
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Analytics')}
+                className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0]"
+              >
+                <View className="flex-row items-center">
+                  <AntDesign name="bar-chart" size={24} color="#91908b" />
+                  <Text className="text-[#6a5f53] text-base ml-4">View Analytics</Text>
+                </View>
+                <AntDesign name="right" size={20} color="#b5a99a" />
+              </TouchableOpacity>
 
-            {!hasPremium && (
+              <TouchableOpacity
+                onPress={handleRestorePurchases}
+                disabled={isLoading}
+                className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0]"
+              >
+                <View className="flex-row items-center">
+                  <MaterialCommunityIcons name="restore" size={24} color="#91908b" />
+                  <Text className="text-[#6a5f53] text-base ml-4">{t('profile.restorePurchases')}</Text>
+                </View>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#91908b" />
+                ) : (
+                  <AntDesign name="right" size={20} color="#b5a99a" />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setLanguageModalVisible(true)}
+                className="flex-row items-center justify-between py-4 px-2"
+              >
+                <View className="flex-row items-center">
+                  <Ionicons name="language" size={24} color="#91908b" />
+                  <Text className="text-[#6a5f53] text-base ml-4">{t('profile.changeLanguage')}</Text>
+                </View>
+                <AntDesign name="right" size={20} color="#b5a99a" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View className="bg-white/90 rounded-2xl p-4 mb-6">
+              <Text className="text-[#6a5f53] text-xl font-bold mb-4 px-2">⚡ Quick Actions</Text>
+              
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Paywall')}
+                className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0] opacity-60"
+              >
+                <View className="flex-row items-center">
+                  <Ionicons name="lock-closed" size={20} color="#91908b" />
+                  <Text className="text-[#6a5f53] text-base ml-4">View Analytics</Text>
+                </View>
+                <AntDesign name="right" size={20} color="#b5a99a" />
+              </TouchableOpacity>
+
               <TouchableOpacity
                 onPress={() => navigation.navigate('Paywall')}
                 className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0]"
@@ -217,56 +275,72 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 </View>
                 <AntDesign name="right" size={20} color="#b5a99a" />
               </TouchableOpacity>
-            )}
 
-            <TouchableOpacity
-              onPress={handleRestorePurchases}
-              disabled={isLoading}
-              className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0]"
-            >
-              <View className="flex-row items-center">
-                <MaterialCommunityIcons name="restore" size={24} color="#91908b" />
-                <Text className="text-[#6a5f53] text-base ml-4">{t('profile.restorePurchases')}</Text>
-              </View>
-              {isLoading ? (
-                <ActivityIndicator size="small" color="#91908b" />
-              ) : (
+              <TouchableOpacity
+                onPress={handleRestorePurchases}
+                disabled={isLoading}
+                className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0]"
+              >
+                <View className="flex-row items-center">
+                  <MaterialCommunityIcons name="restore" size={24} color="#91908b" />
+                  <Text className="text-[#6a5f53] text-base ml-4">{t('profile.restorePurchases')}</Text>
+                </View>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#91908b" />
+                ) : (
+                  <AntDesign name="right" size={20} color="#b5a99a" />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setLanguageModalVisible(true)}
+                className="flex-row items-center justify-between py-4 px-2"
+              >
+                <View className="flex-row items-center">
+                  <Ionicons name="language" size={24} color="#91908b" />
+                  <Text className="text-[#6a5f53] text-base ml-4">{t('profile.changeLanguage')}</Text>
+                </View>
                 <AntDesign name="right" size={20} color="#b5a99a" />
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setLanguageModalVisible(true)}
-              className="flex-row items-center justify-between py-4 px-2"
-            >
-              <View className="flex-row items-center">
-                <Ionicons name="language" size={24} color="#91908b" />
-                <Text className="text-[#6a5f53] text-base ml-4">{t('profile.changeLanguage')}</Text>
-              </View>
-              <AntDesign name="right" size={20} color="#b5a99a" />
-            </TouchableOpacity>
-          </View>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Recent Sessions */}
-          <View className="bg-white/90 rounded-2xl p-4 mb-6">
-            <Text className="text-[#6a5f53] text-xl font-bold mb-4 px-2">🕐 {t('profile.history')}</Text>
-            {sessions.length === 0 ? (
-              <Text className="text-[#b5a99a] text-center py-6">{t('profile.noSessions')}</Text>
-            ) : (
-              sessions.slice(-5).reverse().map((session) => (
-                <View
-                  key={session.id}
-                  className="flex-row justify-between items-center py-3 px-2 border-b border-[#e8ddd0]"
-                >
-                  <View>
-                    <Text className="text-[#6a5f53] font-semibold">{formatTime(session.duration)}</Text>
-                    <Text className="text-[#b5a99a] text-xs mt-1">{formatDate(session.date)}</Text>
+          {hasPremium ? (
+            <View className="bg-white/90 rounded-2xl p-4 mb-6">
+              <Text className="text-[#6a5f53] text-xl font-bold mb-4 px-2">🕐 {t('profile.history')}</Text>
+              {sessions.length === 0 ? (
+                <Text className="text-[#b5a99a] text-center py-6">{t('profile.noSessions')}</Text>
+              ) : (
+                sessions.slice(-5).reverse().map((session) => (
+                  <View
+                    key={session.id}
+                    className="flex-row justify-between items-center py-3 px-2 border-b border-[#e8ddd0]"
+                  >
+                    <View>
+                      <Text className="text-[#6a5f53] font-semibold">{formatTime(session.duration)}</Text>
+                      <Text className="text-[#b5a99a] text-xs mt-1">{formatDate(session.date)}</Text>
+                    </View>
+                    <Ionicons name="checkmark-circle" size={24} color="#91908b" />
                   </View>
-                  <Ionicons name="checkmark-circle" size={24} color="#91908b" />
-                </View>
-              ))
-            )}
-          </View>
+                ))
+              )}
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Paywall')}
+              className="bg-white/90 rounded-2xl p-6 mb-6 items-center"
+            >
+              <Ionicons name="lock-closed" size={40} color="#91908b" className="mb-3" />
+              <Text className="text-[#6a5f53] text-xl font-bold mb-2">🕐 {t('profile.history')}</Text>
+              <Text className="text-[#b5a99a] text-center mb-4">
+                Upgrade to Premium to view your focus history
+              </Text>
+              <View className="bg-[#91908b] px-6 py-2 rounded-full">
+                <Text className="text-white font-semibold">Unlock Premium</Text>
+              </View>
+            </TouchableOpacity>
+          )}
 
           {/* Cancel Subscription */}
           {hasPremium && (
