@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground, Alert, Linking } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/types';
 import { checkEntitlement } from '../services/revenueCat';
@@ -71,6 +71,15 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
     console.log('🛒 Tentative d\'achat pour:', selectedPlan);
     console.log('📦 Packages disponibles:', packages.length);
     
+    if (packages.length === 0) {
+      Alert.alert(
+        t('paywall.error'),
+        "No subscription packages available. Please check your internet connection and try again later."
+      );
+      setIsLoading(false);
+      return;
+    }
+    
     // Chercher par type de package plutôt que par identifier
     const packageToBuy = selectedPlan === 'focusapp_yearly' 
       ? packages.find(pkg => pkg.packageType === 'ANNUAL')
@@ -83,11 +92,21 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
       
       if (fallbackPackage) {
         console.log('✅ Package trouvé via product ID:', fallbackPackage.product.identifier);
-        const { customerInfo } = await Purchases.purchasePackage(fallbackPackage);
-        
-        if (typeof customerInfo.entitlements.active['focusapp Pro'] !== "undefined") {
-          await AsyncStorage.setItem('hasFreeTrial', 'false');
-          navigation.replace('Ready');
+        try {
+          const { customerInfo } = await Purchases.purchasePackage(fallbackPackage);
+          
+          if (typeof customerInfo.entitlements.active['focusapp Pro'] !== "undefined") {
+            await AsyncStorage.setItem('hasFreeTrial', 'false');
+            navigation.replace('Ready');
+          }
+        } catch (purchaseError: any) {
+          console.error('❌ Purchase error:', purchaseError);
+          if (!purchaseError.userCancelled) {
+            Alert.alert(
+              t('paywall.error'),
+              purchaseError.message || "An error occurred during purchase. Please try again."
+            );
+          }
         }
         return;
       }
@@ -97,8 +116,8 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
         packages.map(p => ({ id: p.identifier, type: p.packageType, productId: p.product.identifier }))
       );
       Alert.alert(
-        "Offre non disponible", 
-        "Les produits ne sont pas encore configurés. Vérifiez App Store Connect."
+        t('paywall.error'),
+        "The selected subscription is not available. Please try again or contact support."
       );
       return;
     }
@@ -112,8 +131,25 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
     }
   } catch (e: any) {
     console.error('❌ Erreur d\'achat:', e);
+    console.error('Error code:', e.code);
+    console.error('Error message:', e.message);
+    console.error('User cancelled:', e.userCancelled);
+    
     if (!e.userCancelled) {
-      Alert.alert("Erreur d'achat", e.message || "Une erreur est survenue");
+      let errorMessage = "An error occurred during purchase. Please try again.";
+      
+      // Provide more specific error messages
+      if (e.code === 'PRODUCT_NOT_AVAILABLE_FOR_PURCHASE') {
+        errorMessage = "This subscription is not available for purchase. Please check App Store Connect configuration.";
+      } else if (e.code === 'PURCHASE_NOT_ALLOWED') {
+        errorMessage = "Purchases are not allowed on this device. Check your device settings.";
+      } else if (e.code === 'PAYMENT_PENDING') {
+        errorMessage = "Your payment is pending. Please check back later.";
+      } else if (e.message) {
+        errorMessage = e.message;
+      }
+      
+      Alert.alert(t('paywall.error'), errorMessage);
     }
   } finally {
     setIsLoading(false);
@@ -269,9 +305,25 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
             </TouchableOpacity>
 
             {/* Footer */}
-            <Text className="text-[#b5a99a] text-xs text-center mt-2">
-              {t('paywall.termsAndPrivacy')}
-            </Text>
+            <View className="mt-4">
+              <Text className="text-[#6a5f53] text-xs text-center leading-5 mb-3">
+                {t('paywall.autoRenew')}
+              </Text>
+              
+              <View className="flex-row justify-center items-center space-x-2">
+                <TouchableOpacity onPress={() => Linking.openURL('https://raw.githubusercontent.com/tawfik-software/focusapp/main/terms.html')}>
+                  <Text className="text-[#91908b] text-xs underline">
+                    {t('paywall.terms')}
+                  </Text>
+                </TouchableOpacity>
+                <Text className="text-[#b5a99a] text-xs"> • </Text>
+                <TouchableOpacity onPress={() => Linking.openURL('https://1drv.ms/w/c/1d76045b040cc6c0/IQCVPalKvNAeRZjqx-XsoArEASOvboHjtSBoD6zm1FC9F0Y')}>
+                  <Text className="text-[#91908b] text-xs underline">
+                    {t('paywall.privacy')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
       </ScrollView>
