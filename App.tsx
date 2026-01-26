@@ -10,7 +10,6 @@ import './src/services/i18n';
 
 import WelcomeScreen from './src/app/WelcomeScreen';
 import WhoAmIScreen from './src/app/WhoAmIScreen';
-import PaywallScreen from './src/app/PaywallScreen';
 import ReadyScreen from './src/app/ReadyScreen';
 import HomeScreen from './src/app/HomeScreen';
 import FocusScreen from './src/app/FocusScreen';
@@ -61,7 +60,6 @@ export default function App() {
         >
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="WhoAmI" component={WhoAmIScreen} />
-          <Stack.Screen name="Paywall" component={PaywallScreen} />
           <Stack.Screen name="Ready" component={ReadyScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Focus" component={FocusScreen} />

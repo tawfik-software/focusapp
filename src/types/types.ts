@@ -1,7 +1,6 @@
 export type RootStackParamList = {
   Welcome: undefined;
   WhoAmI: undefined;
-  Paywall: undefined;
   Ready: undefined;
   Home: undefined;
   Focus: undefined;

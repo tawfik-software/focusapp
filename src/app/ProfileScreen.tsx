@@ -16,6 +16,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { checkEntitlement } from '../services/revenueCat';
+import { presentPaywall } from '../services/paywall';
 import Purchases from 'react-native-purchases';
 import { useTranslation } from 'react-i18next';
 import i18n from 'i18next';
@@ -193,7 +194,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             </View>
           ) : (
             <TouchableOpacity
-              onPress={() => navigation.navigate('Paywall')}
+              onPress={async () => {
+                const success = await presentPaywall();
+                if (success) {
+                  loadUserData();
+                }
+              }}
               className="bg-white/90 rounded-2xl p-6 mb-6 items-center"
             >
               <Ionicons name="lock-closed" size={40} color="#91908b" className="mb-3" />
@@ -255,7 +261,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               <Text className="text-[#6a5f53] text-xl font-bold mb-4 px-2">⚡ Quick Actions</Text>
               
               <TouchableOpacity
-                onPress={() => navigation.navigate('Paywall')}
+                onPress={async () => {
+                  const success = await presentPaywall();
+                  if (success) {
+                    loadUserData();
+                  }
+                }}
                 className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0] opacity-60"
               >
                 <View className="flex-row items-center">
@@ -266,7 +277,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => navigation.navigate('Paywall')}
+                onPress={async () => {
+                  const success = await presentPaywall();
+                  if (success) {
+                    loadUserData();
+                  }
+                }}
                 className="flex-row items-center justify-between py-4 px-2 border-b border-[#e8ddd0]"
               >
                 <View className="flex-row items-center">
@@ -328,7 +344,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             </View>
           ) : (
             <TouchableOpacity
-              onPress={() => navigation.navigate('Paywall')}
+              onPress={async () => {
+                const success = await presentPaywall();
+                if (success) {
+                  loadUserData();
+                }
+              }}
               className="bg-white/90 rounded-2xl p-6 mb-6 items-center"
             >
               <Ionicons name="lock-closed" size={40} color="#91908b" className="mb-3" />

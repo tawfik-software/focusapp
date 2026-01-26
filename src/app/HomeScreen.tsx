@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/types";
 import { checkEntitlement } from "../services/revenueCat";
+import { presentPaywall } from "../services/paywall";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from 'react-i18next';
 
@@ -54,7 +55,12 @@ export default function HomeScreen({ navigation }: Props) {
           { text: t('home.cancel'), style: "cancel" },
           { 
             text: t('home.getPremium'), 
-            onPress: () => navigation.navigate("Paywall")
+            onPress: async () => {
+              const success = await presentPaywall();
+              if (success) {
+                navigation.navigate("Analytics");
+              }
+            }
           }
         ]
       );
