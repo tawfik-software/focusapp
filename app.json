@@ -2,7 +2,7 @@
   "expo": {
     "name": "focusapp",
     "slug": "focusapp",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/logofocusapp.png",
     "userInterfaceStyle": "light",
@@ -33,7 +33,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tawfikcodes.focusapp",
-      "buildNumber": "8",
+      "buildNumber": "9",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
