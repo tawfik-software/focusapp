@@ -191,16 +191,6 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
             </TouchableOpacity>
           </View>
 
-          {/* Terms of Service Link */}
-          <TouchableOpacity 
-            onPress={() => Linking.openURL('https://tawfik-software.github.io/focusapp/terms.html')}
-            className="items-center mb-4"
-          >
-            <Text className="text-[#91908b] text-sm underline">
-              {t('paywall.termsOfService', 'Terms of Service')}
-            </Text>
-          </TouchableOpacity>
-
           {/* Pricing Cards */}
           <View className="mb-8">
             {/* Yearly Plan */}
@@ -325,19 +315,25 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
                 {t('paywall.autoRenew')}
               </Text>
             
-              <View className="flex-row justify-center items-center space-x-2">
-                <TouchableOpacity onPress={() => Linking.openURL('https://raw.githubusercontent.com/tawfik-software/focusapp/main/terms.html')}>
-                  <Text className="text-[#91908b] text-xs underline">
-                    {t('paywall.terms')}
+              {/* Legal Links - Required by Apple */}
+              <View className="flex-row justify-center items-center flex-wrap gap-2 mb-2">
+                <TouchableOpacity onPress={() => Linking.openURL('https://tawfik-software.github.io/focusapp/terms.html')}>
+                  <Text className="text-[#91908b] text-sm underline font-semibold">
+                    {t('paywall.terms', 'Terms of Service')}
                   </Text>
                 </TouchableOpacity>
-                <Text className="text-[#b5a99a] text-xs"> • </Text>
-                <TouchableOpacity onPress={() => Linking.openURL('https://1drv.ms/w/c/1d76045b040cc6c0/IQCVPalKvNAeRZjqx-XsoArEASOvboHjtSBoD6zm1FC9F0Y')}>
-                  <Text className="text-[#91908b] text-xs underline">
-                    {t('paywall.privacy')}
+                <Text className="text-[#b5a99a] text-sm">•</Text>
+                <TouchableOpacity onPress={() => Linking.openURL('https://tawfik-software.github.io/focusapp/privacy-policy.html')}>
+                  <Text className="text-[#91908b] text-sm underline font-semibold">
+                    {t('paywall.privacy', 'Privacy Policy')}
                   </Text>
                 </TouchableOpacity>
               </View>
+              
+              {/* Subscription Info */}
+              <Text className="text-[#6a5f53] text-xs text-center mt-2">
+                Auto-renewable subscription. Cancel anytime in Settings.
+              </Text>
             </View>
           </View>
         </View>
