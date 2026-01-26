@@ -4,7 +4,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
-import { presentPaywall } from '../services/paywall';
 
 type WhoAmIScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'WhoAmI'>;
@@ -22,10 +21,9 @@ export default function WhoAmIScreen({ navigation }: WhoAmIScreenProps) {
 
     try {
       await AsyncStorage.setItem('userName', name);
-      const subscribed = await presentPaywall();
-      if (subscribed) {
-        navigation.navigate('Ready');
-      }
+      // Navigate directly to Ready screen - paywall is optional
+      // Users will see paywall when they try to use premium features
+      navigation.navigate('Ready');
     } catch (error) {
       Alert.alert(t('whoami.errorSave'), t('whoami.errorSave'));
     }
