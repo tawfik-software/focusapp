@@ -72,9 +72,14 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
     console.log('📦 Packages disponibles:', packages.length);
     
     if (packages.length === 0) {
+      console.error('❌ Aucun package disponible - Vérifier la configuration RevenueCat');
       Alert.alert(
-        t('paywall.error'),
-        "No subscription packages available. Please check your internet connection and try again later."
+        'Configuration Required',
+        'Subscription packages are not available. This may be due to:\n\n1. Products not configured in App Store Connect\n2. RevenueCat offering not set up\n3. Network connectivity issue\n\nPlease ensure products are "Ready to Submit" in App Store Connect and a default offering exists in RevenueCat.',
+        [
+          { text: 'OK' },
+          { text: 'Try Again', onPress: () => loadPackages() }
+        ]
       );
       setIsLoading(false);
       return;
@@ -185,6 +190,16 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <AntDesign name="close-circle" size={24} color="#91908b" />
             </TouchableOpacity>
           </View>
+
+          {/* Terms of Service Link */}
+          <TouchableOpacity 
+            onPress={() => Linking.openURL('https://tawfik-software.github.io/focusapp/terms.html')}
+            className="items-center mb-4"
+          >
+            <Text className="text-[#91908b] text-sm underline">
+              {t('paywall.termsOfService', 'Terms of Service')}
+            </Text>
+          </TouchableOpacity>
 
           {/* Pricing Cards */}
           <View className="mb-8">
@@ -309,7 +324,7 @@ export default function PaywallScreen({ navigation }: PaywallScreenProps) {
               <Text className="text-[#6a5f53] text-xs text-center leading-5 mb-3">
                 {t('paywall.autoRenew')}
               </Text>
-              
+            
               <View className="flex-row justify-center items-center space-x-2">
                 <TouchableOpacity onPress={() => Linking.openURL('https://raw.githubusercontent.com/tawfik-software/focusapp/main/terms.html')}>
                   <Text className="text-[#91908b] text-xs underline">
