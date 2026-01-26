@@ -18,6 +18,7 @@ import { RootStackParamList, FocusSession } from "../types/types";
 import { AudioPlayer, useAudioPlayer } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { checkEntitlement } from "../services/revenueCat";
+import { presentPaywall } from "../services/paywall";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Define navigation prop type
@@ -233,7 +234,13 @@ const FocusScreen = () => {
           { text: "Cancel", style: "cancel" },
           {
             text: "Get Premium",
-            onPress: () => navigation.navigate("Paywall"),
+            onPress: async () => {
+              const success = await presentPaywall();
+              if (success) {
+                await checkSubscriptionStatus();
+                setShowVolumeControl(true);
+              }
+            },
           },
         ]
       );
@@ -251,7 +258,13 @@ const FocusScreen = () => {
           { text: "Cancel", style: "cancel" },
           {
             text: "Get Premium",
-            onPress: () => navigation.navigate("Paywall"),
+            onPress: async () => {
+              const success = await presentPaywall();
+              if (success) {
+                await checkSubscriptionStatus();
+                navigation.navigate("Analytics");
+              }
+            },
           },
         ]
       );
@@ -279,9 +292,12 @@ const FocusScreen = () => {
           { text: "Cancel", style: "cancel" },
           {
             text: "Get Premium",
-            onPress: () => {
+            onPress: async () => {
               setMusicModalVisible(false);
-              navigation.navigate("Paywall");
+              const success = await presentPaywall();
+              if (success) {
+                await checkSubscriptionStatus();
+              }
             },
           },
         ]
