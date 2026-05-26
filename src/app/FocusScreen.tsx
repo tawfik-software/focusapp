@@ -17,9 +17,13 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList, FocusSession } from "../types/types";
 import { AudioPlayer, useAudioPlayer } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { checkEntitlement } from "../services/revenueCat";
-import { presentPaywall } from "../services/paywall";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RewardedAd, RewardedAdEventType, TestIds } from 'react-native-google-mobile-ads';
+
+// ID de l'annonce vidéo avec récompense
+const REWARDED_AD_UNIT_ID = __DEV__
+  ? TestIds.REWARDED
+  : 'ca-app-pub-2359836796711365/1622918486';
 
 // Define navigation prop type
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -39,9 +43,9 @@ const FocusScreen = () => {
   const [userName, setUserName] = useState("");
   const [musicModalVisible, setMusicModalVisible] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState("music1");
-  const [hasFreeTrial, setHasFreeTrial] = useState(true);
-  const [hasPremium, setHasPremium] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [rewardedAdLoaded, setRewardedAdLoaded] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rewardedAd = useRef<RewardedAd | null>(null);
   const player = useAudioPlayer(require("../../assets/music/music1.mp3"));
 
   // Music library
@@ -122,7 +126,7 @@ const FocusScreen = () => {
   useEffect(() => {
     loadPermissionStatus();
     loadUserName();
-    checkSubscriptionStatus();
+    loadRewardedAd();
   }, []);
 
   // Cleanup on unmount
@@ -140,6 +144,67 @@ const FocusScreen = () => {
       }
     };
   }, []);
+
+  // Charger l'annonce vidéo avec récompense
+  const loadRewardedAd = () => {
+    try {
+      const rewarded = RewardedAd.createForAdRequest(REWARDED_AD_UNIT_ID, {
+        requestNonPersonalizedAdsOnly: true,
+      });
+
+      const loadedListener = rewarded.addAdEventListener(
+        RewardedAdEventType.LOADED,
+        () => {
+          setRewardedAdLoaded(true);
+          console.log('✅ Rewarded ad loaded and ready');
+        }
+      );
+
+      const earnedListener = rewarded.addAdEventListener(
+        RewardedAdEventType.EARNED_REWARD,
+        (reward) => {
+          console.log('🎁 User earned reward:', reward);
+          // Recharger une nouvelle annonce pour la prochaine fois
+          setRewardedAdLoaded(false);
+          setTimeout(() => {
+            loadRewardedAd();
+          }, 1000);
+        }
+      );
+
+      rewarded.load();
+      rewardedAd.current = rewarded;
+
+      return () => {
+        loadedListener();
+        earnedListener();
+      };
+    } catch (error) {
+      console.error('❌ Error loading rewarded ad:', error);
+      setRewardedAdLoaded(false);
+    }
+  };
+
+  // Afficher l'annonce vidéo avec récompense
+  const showRewardedAd = async () => {
+    try {
+      if (!rewardedAdLoaded || !rewardedAd.current) {
+        console.log('⏳ Rewarded ad not ready yet');
+        return;
+      }
+
+      console.log('📺 Showing rewarded ad...');
+      await rewardedAd.current.show();
+      setRewardedAdLoaded(false);
+    } catch (error) {
+      console.error('❌ Error showing rewarded ad:', error);
+      setRewardedAdLoaded(false);
+      // Recharger une nouvelle annonce
+      setTimeout(() => {
+        loadRewardedAd();
+      }, 1000);
+    }
+  };
 
   // Load permission status from storage
   const loadPermissionStatus = async () => {
@@ -167,18 +232,7 @@ const FocusScreen = () => {
     }
   };
 
-  // Check subscription status
-  const checkSubscriptionStatus = async () => {
-    try {
-      const freeTrialStatus = await AsyncStorage.getItem("hasFreeTrial");
-      const isPremium = await checkEntitlement();
 
-      setHasFreeTrial(freeTrialStatus === "true");
-      setHasPremium(isPremium);
-    } catch (error) {
-      console.log("Error checking subscription:", error);
-    }
-  };
 
   // Save permission status to storage
   const savePermissionStatus = async (granted: boolean) => {
@@ -225,86 +279,21 @@ const FocusScreen = () => {
   };
 
   // Toggle volume control visibility
-  const toggleVolumeControl = async () => {
-    if (!hasPremium) {
-      Alert.alert(
-        "Premium Feature",
-        "Volume control is only available for premium subscribers.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Get Premium",
-            onPress: async () => {
-              const success = await presentPaywall();
-              if (success) {
-                await checkSubscriptionStatus();
-                setShowVolumeControl(true);
-              }
-            },
-          },
-        ]
-      );
-      return;
-    }
+  const toggleVolumeControl = () => {
     setShowVolumeControl(!showVolumeControl);
   };
 
-  const taggleAnalytics = async () => {
-    if (!hasPremium) {
-      Alert.alert(
-        "Premium Feature",
-        "Analytics are only available for premium subscribers.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Get Premium",
-            onPress: async () => {
-              const success = await presentPaywall();
-              if (success) {
-                await checkSubscriptionStatus();
-                navigation.navigate("Analytics");
-              }
-            },
-          },
-        ]
-      );
-      return;
-    }
+  const taggleAnalytics = () => {
     navigation.navigate("Analytics");
   };
   // Update volume
-  const updateVolume = async (newVolume: number) => {
-    if (!hasPremium) {
-      return;
-    }
+  const updateVolume = (newVolume: number) => {
     setVolume(newVolume);
     player.volume = newVolume;
   };
 
   // Handle music selection
   const handleMusicSelection = async (musicId: string) => {
-    // Only allow music1 for free trial users
-    if (!hasPremium && musicId !== "music1") {
-      Alert.alert(
-        "Premium Feature",
-        "Premium music tracks are only available for subscribers. Upgrade to access all 14 ambient tracks!",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Get Premium",
-            onPress: async () => {
-              setMusicModalVisible(false);
-              const success = await presentPaywall();
-              if (success) {
-                await checkSubscriptionStatus();
-              }
-            },
-          },
-        ]
-      );
-      return;
-    }
-
     if (isRunning) {
       Alert.alert(
         "Session en cours",
@@ -579,7 +568,13 @@ const FocusScreen = () => {
               </Text>
               <TouchableOpacity
                 className="bg-[#91908b] px-8 py-3 rounded-lg w-full"
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  setModalVisible(false);
+                  // Afficher l'annonce vidéo avec récompense après fermeture du modal
+                  setTimeout(() => {
+                    showRewardedAd();
+                  }, 600); // Délai pour que l'animation du modal se termine
+                }}
               >
                 {/* Close button */}
                 <Text className="text-white text-center font-bold text-lg">

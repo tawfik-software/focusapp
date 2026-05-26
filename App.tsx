@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import mobileAds from 'react-native-google-mobile-ads';
 import './src/services/i18n';
 
 import WelcomeScreen from './src/app/WelcomeScreen';
@@ -16,7 +17,6 @@ import FocusScreen from './src/app/FocusScreen';
 import AnalyticsScreen from './src/app/AnalyticsScreen';
 import ProfileScreen from './src/app/ProfileScreen';
 import { RootStackParamList } from './src/types/types';
-import { configureRevenueCat } from './src/services/revenueCat';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -25,9 +25,18 @@ export default function App() {
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
 
   useEffect(() => {
-    configureRevenueCat();
     checkOnboardingStatus();
+    initializeAds();
   }, []);
+
+  const initializeAds = async () => {
+    try {
+      await mobileAds().initialize();
+      console.log('Google Mobile Ads initialized');
+    } catch (error) {
+      console.error('Error initializing Google Mobile Ads:', error);
+    }
+  };
 
   const checkOnboardingStatus = async () => {
     try {

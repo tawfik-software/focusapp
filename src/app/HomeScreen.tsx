@@ -5,15 +5,19 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
-  Alert,
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/types";
-import { checkEntitlement } from "../services/revenueCat";
-import { presentPaywall } from "../services/paywall";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from 'react-i18next';
+import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+
+// ID de bloc d'annonces AdMob
+const BANNER_AD_UNIT_ID = __DEV__ 
+  ? TestIds.ADAPTIVE_BANNER 
+  : 'ca-app-pub-2359836796711365/7844407987';
 
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
@@ -42,32 +46,6 @@ export default function HomeScreen({ navigation }: Props) {
     } catch (error) {
       console.log("Error loading name:", error);
     }
-  };
-
-  const handleAnalyticsPress = async () => {
-    const isPremium = await checkEntitlement();
-    
-    if (!isPremium) {
-      Alert.alert(
-        t('home.premiumFeature'),
-        t('home.analyticsMessage'),
-        [
-          { text: t('home.cancel'), style: "cancel" },
-          { 
-            text: t('home.getPremium'), 
-            onPress: async () => {
-              const success = await presentPaywall();
-              if (success) {
-                navigation.navigate("Analytics");
-              }
-            }
-          }
-        ]
-      );
-      return;
-    }
-    
-    navigation.navigate("Analytics");
   };
 
   return (
@@ -108,6 +86,17 @@ export default function HomeScreen({ navigation }: Props) {
             className="w-[140px] h-[140px]"
           />
         </TouchableOpacity>
+      </View>
+
+      {/* Bannière publicitaire AdMob */}
+      <View className="absolute bottom-0 left-0 right-0 items-center bg-white/95 py-2">
+        <BannerAd
+          unitId={BANNER_AD_UNIT_ID}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
       </View>
     </ImageBackground>
   );
